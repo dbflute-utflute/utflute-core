@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Base
-mvn -e clean deploy
+mvn -e clean deploy install
 
 # Core
 cd ../utflute-core
