@@ -26,7 +26,7 @@ import java.util.concurrent.Future;
 
 import junit.framework.AssertionFailedError;
 
-import org.dbflute.exception.factory.ExceptionMessageBuilder;
+import org.dbflute.helper.message.ExceptionMessageBuilder;
 import org.dbflute.utflute.core.transaction.TransactionResource;
 import org.dbflute.util.Srl;
 

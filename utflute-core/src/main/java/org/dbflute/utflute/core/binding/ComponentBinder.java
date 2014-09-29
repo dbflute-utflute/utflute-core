@@ -24,10 +24,10 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.dbflute.exception.factory.ExceptionMessageBuilder;
 import org.dbflute.helper.beans.DfBeanDesc;
 import org.dbflute.helper.beans.DfPropertyDesc;
 import org.dbflute.helper.beans.factory.DfBeanDescFactory;
+import org.dbflute.helper.message.ExceptionMessageBuilder;
 import org.dbflute.util.DfCollectionUtil;
 import org.dbflute.util.Srl;
 

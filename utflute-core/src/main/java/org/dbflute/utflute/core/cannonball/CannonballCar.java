@@ -17,7 +17,7 @@ package org.dbflute.utflute.core.cannonball;
 
 import junit.framework.AssertionFailedError;
 
-import org.dbflute.exception.factory.ExceptionMessageBuilder;
+import org.dbflute.helper.message.ExceptionMessageBuilder;
 
 /**
  * @author jflute

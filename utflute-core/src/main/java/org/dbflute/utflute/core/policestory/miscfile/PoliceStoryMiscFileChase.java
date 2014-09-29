@@ -18,9 +18,9 @@ package org.dbflute.utflute.core.policestory.miscfile;
 import java.io.File;
 import java.io.IOException;
 
-import org.dbflute.exception.factory.ExceptionMessageBuilder;
 import org.dbflute.helper.filesystem.FileHierarchyTracer;
 import org.dbflute.helper.filesystem.FileHierarchyTracingHandler;
+import org.dbflute.helper.message.ExceptionMessageBuilder;
 
 /**
  * @author jflute

@@ -34,8 +34,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dbflute.AccessContext;
-import org.dbflute.cbean.PagingResultBean;
+import org.dbflute.cbean.result.PagingResultBean;
+import org.dbflute.hook.AccessContext;
 import org.dbflute.utflute.core.cannonball.CannonballDirector;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballRun;

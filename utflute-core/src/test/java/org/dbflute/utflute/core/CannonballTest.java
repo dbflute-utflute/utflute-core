@@ -25,7 +25,7 @@ import java.util.Set;
 import junit.framework.AssertionFailedError;
 
 import org.dbflute.exception.IllegalConditionBeanOperationException;
-import org.dbflute.exception.factory.ExceptionMessageBuilder;
+import org.dbflute.helper.message.ExceptionMessageBuilder;
 import org.dbflute.utflute.core.PlainTestCase;
 import org.dbflute.utflute.core.cannonball.CannonballCar;
 import org.dbflute.utflute.core.cannonball.CannonballDragon;
