@@ -19,6 +19,8 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -27,6 +29,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.sql.DataSource;
 
@@ -36,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbflute.cbean.result.PagingResultBean;
 import org.dbflute.hook.AccessContext;
+import org.dbflute.system.DBFluteSystem;
 import org.dbflute.utflute.core.cannonball.CannonballDirector;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
@@ -110,10 +114,13 @@ public abstract class PlainTestCase extends TestCase {
 
     protected void xprepareAccessContext() {
         final AccessContext context = new AccessContext();
+        context.setAccessLocalDate(currentLocalDate());
+        context.setAccessLocalDateTime(currentLocalDateTime());
         context.setAccessTimestamp(currentTimestamp());
         context.setAccessDate(currentDate());
         context.setAccessUser(Thread.currentThread().getName());
         context.setAccessProcess(getClass().getSimpleName());
+        context.setAccessModule(getClass().getSimpleName());
         AccessContext.setAccessContextOnThread(context);
     }
 
@@ -684,12 +691,28 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                         Date Helper
     //                                                                         ===========
+    protected LocalDate currentLocalDate() {
+        return DfTypeUtil.toLocalDate(currentDate(), getFinalTimeZone());
+    }
+
+    protected LocalDateTime currentLocalDateTime() {
+        return DfTypeUtil.toLocalDateTime(currentDate(), getFinalTimeZone());
+    }
+
     protected Date currentDate() {
-        return new Date(System.currentTimeMillis());
+        return DBFluteSystem.currentDate();
     }
 
     protected Timestamp currentTimestamp() {
-        return new Timestamp(System.currentTimeMillis());
+        return new Timestamp(DBFluteSystem.currentTimeMillis());
+    }
+
+    protected LocalDate toLocalDate(Object obj) {
+        return DfTypeUtil.toLocalDate(obj, getFinalTimeZone());
+    }
+
+    protected LocalDateTime toLocalDateTime(Object obj) {
+        return DfTypeUtil.toLocalDateTime(obj, getFinalTimeZone());
     }
 
     protected Date toDate(Object obj) {
@@ -698,6 +721,10 @@ public abstract class PlainTestCase extends TestCase {
 
     protected Timestamp toTimestamp(Object obj) {
         return DfTypeUtil.toTimestamp(obj);
+    }
+
+    protected TimeZone getFinalTimeZone() {
+        return DBFluteSystem.getFinalTimeZone();
     }
 
     // ===================================================================================
