@@ -4,21 +4,21 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.seasar.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.5.0-pilot1-SNAPSHOT</version>
+	<version>0.5.0-pilot4-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
 	<description>The base project of pom for unit test library (with DBFlute)</description>
 
 	<properties>
-		<dbflute.version>1.1-pilot1-SNAPSHOT</dbflute.version>
-		<utflute.core.version>0.5.0-pilot1-SNAPSHOT</utflute.core.version>
+		<dbflute.version>1.1-pilot4-SNAPSHOT</dbflute.version>
+		<utflute.core.version>0.5.0-pilot4-SNAPSHOT</utflute.core.version>
 
 		<seasar.version>2.4.46</seasar.version>
-		<spring.version>3.0.5.RELEASE</spring.version>
+		<spring.version>4.1.1.RELEASE</spring.version>
 		<guice.version>3.0</guice.version>
 
-		<h2.jdbc.version>1.4.178</h2.jdbc.version>
+		<h2.jdbc.version>1.4.181</h2.jdbc.version>
 	</properties>
 
 	<url>http://dbflute.seasar.org/</url>
@@ -261,6 +261,12 @@
 	    </dependency>
 
 		<!-- logging -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.7.7</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
