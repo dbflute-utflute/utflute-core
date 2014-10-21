@@ -51,6 +51,7 @@ import org.dbflute.utflute.core.policestory.jspfile.PoliceStoryJspFileHandler;
 import org.dbflute.utflute.core.policestory.miscfile.PoliceStoryMiscFileHandler;
 import org.dbflute.utflute.core.policestory.pjresource.PoliceStoryProjectResourceHandler;
 import org.dbflute.utflute.core.policestory.webresource.PoliceStoryWebResourceHandler;
+import org.dbflute.utflute.core.smallhelper.ExceptionExaminer;
 import org.dbflute.utflute.core.thread.ThreadFireExecution;
 import org.dbflute.utflute.core.thread.ThreadFireHelper;
 import org.dbflute.utflute.core.thread.ThreadFireMan;
@@ -495,6 +496,33 @@ public abstract class PlainTestCase extends TestCase {
     protected void assertListNotEmpty(List<?> list) { // old style
         if (list.isEmpty()) {
             fail("the list should NOT be empty but empty.");
+        }
+    }
+
+    // -----------------------------------------------------
+    //                                             Exception
+    //                                             ---------
+    /**
+     * Assert that the callback throws the exception.
+     * <pre>
+     * String str = null;
+     * assertException(NullPointerException.class, () <span style="color: #90226C; font-weight: bold"><span style="font-size: 120%">-</span>&gt;</span> str.toString());
+     * </pre>
+     * @param exceptionType The expected exception type. (NotNull) 
+     * @param noArgInLambda The callback for calling methods that should throw the exception. (NotNull)
+     */
+    protected void assertException(Class<?> exceptionType, ExceptionExaminer noArgInLambda) {
+        assertNotNull(exceptionType);
+        try {
+            noArgInLambda.examine();
+            fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
+        } catch (Throwable cause) {
+            final Class<? extends Throwable> causeClass = cause.getClass();
+            if (!exceptionType.isAssignableFrom(causeClass)) {
+                fail("expected: " + exceptionType.getSimpleName() + " but: " + causeClass.getSimpleName());
+            }
+            final String msg = cause.getMessage();
+            log("expected: " + (msg != null && msg.contains(ln()) ? ln() : "") + msg);
         }
     }
 
