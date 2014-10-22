@@ -4,25 +4,25 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.seasar.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.5.0-pilot4-SNAPSHOT</version>
+	<version>0.5.0-pilot6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
 	<description>The base project of pom for unit test library (with DBFlute)</description>
+	<url>http://dbflute.org</url>
+	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<dbflute.version>1.1-pilot4-SNAPSHOT</dbflute.version>
-		<utflute.core.version>0.5.0-pilot4-SNAPSHOT</utflute.core.version>
+		<dbflute.version>1.1-pilot6-SNAPSHOT</dbflute.version>
+		<utflute.core.version>0.5.0-pilot6-SNAPSHOT</utflute.core.version>
 
 		<seasar.version>2.4.46</seasar.version>
 		<spring.version>4.1.1.RELEASE</spring.version>
 		<guice.version>3.0</guice.version>
 
-		<h2.jdbc.version>1.4.181</h2.jdbc.version>
+		<h2.jdbc.version>1.4.182</h2.jdbc.version>
 	</properties>
 
-	<url>http://dbflute.seasar.org/</url>
-	<inceptionYear>2006</inceptionYear>
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
@@ -31,35 +31,37 @@
 		</license>
 	</licenses>
 	<organization>
-		<name>The Seasar Foundation</name>
-		<url>http://www.seasar.org/</url>
+		<name>The DBFlute Project</name>
+		<url>http://dbflute.org</url>
 	</organization>
 
 	<developers>
 		<developer>
 			<id>jflute</id>
+			<name>Masahiko Kubo</name>
+			<email>dbflute@gmail.com</email>
 			<timezone>+9</timezone>
 		</developer>
 	</developers>
 
 	<issueManagement>
-		<system>JIRA</system>
-		<url>https://www.seasar.org/issues/browse/DBFLUTE</url>
+		<system>Github</system>
+		<url>https://github.com/dbflute-utflute/utflute-core/issues</url>
 	</issueManagement>
 	<mailingLists>
 		<mailingList>
-			<name>Seasar-user</name>
-			<subscribe>https://www.seasar.org/mailman/listinfo/seasar-user</subscribe>
-			<unsubscribe>https://www.seasar.org/mailman/listinfo/seasar-user</unsubscribe>
-			<post>seasar-user@ml.seasar.org</post>
-			<archive>https://www.seasar.org/mailman/listinfo/seasar-user</archive>
+			<name>DBFlute-users</name>
+			<subscribe>https://groups.google.com/forum/#!forum/dbflute</subscribe>
+			<unsubscribe>https://groups.google.com/forum/#!forum/dbflute</unsubscribe>
+			<post>dbflute@googlegroups.com</post>
+			<archive>https://groups.google.com/forum/#!forum/dbflute</archive>
 		</mailingList>
 	</mailingLists>
 
 	<scm>
-		<connection>scm:svn:https://www.seasar.org/svn/dbflute/trunk/utflute-base/</connection>
-		<developerConnection>scm:svn:https://www.seasar.org/svn/dbflute/trunk/utflute-base/</developerConnection>
-		<url>http://svn.seasar.org/browse/?root=dbflute</url>
+		<connection>scm:git:https://github.com/dbflute-utflute/utflute-core.git</connection>
+		<developerConnection>scm:git:https://github.com/dbflute-utflute/utflute-core.git</developerConnection>
+		<url>https://github.com/dbflute-utflute</url>
 	</scm>
 
 	<build>
@@ -69,8 +71,8 @@
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<configuration>
-						<source>1.5</source>
-						<target>1.5</target>
+						<source>1.8</source>
+						<target>1.8</target>
 						<encoding>UTF-8</encoding>
 						<showDeprecation>true</showDeprecation>
 						<showWarnings>true</showWarnings>
