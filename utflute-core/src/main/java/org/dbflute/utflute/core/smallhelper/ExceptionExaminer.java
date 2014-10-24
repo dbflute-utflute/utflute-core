@@ -19,6 +19,7 @@ package org.dbflute.utflute.core.smallhelper;
  * @author jflute
  * @since 1.1.0 (2014/10/22 Wednesday)
  */
+@FunctionalInterface
 public interface ExceptionExaminer {
 
     /**
