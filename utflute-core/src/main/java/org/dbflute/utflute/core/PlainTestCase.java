@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -454,7 +455,7 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Assert that the list has any element (not empty). <br />
+     * Assert that the list has any element (not empty). <br>
      * You can use this to guarantee assertion in loop like this:
      * <pre>
      * List&lt;Member&gt; memberList = memberBhv.selectList(cb);
@@ -486,16 +487,6 @@ public abstract class PlainTestCase extends TestCase {
     protected void assertHasZeroElement(Collection<?> emptyList) {
         if (!emptyList.isEmpty()) {
             fail("the list should have zero element (empty) but: " + emptyList);
-        }
-    }
-
-    /**
-     * @param list
-     * @deprecated use {@link #assertHasAnyElement(Collection)}
-     */
-    protected void assertListNotEmpty(List<?> list) { // old style
-        if (list.isEmpty()) {
-            fail("the list should NOT be empty but empty.");
         }
     }
 
@@ -592,7 +583,7 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                      Logging Helper
     //                                                                      ==============
     /**
-     * Log the messages. <br />
+     * Log the messages. <br>
      * If you set an exception object to the last element, it shows stack traces.
      * <pre>
      * Member member = ...;
@@ -656,22 +647,22 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                         Show Helper
     //                                                                         ===========
-    protected void showPage(PagingResultBean<?>... pages) {
+    protected void showList(List<?>... list) {
         int count = 1;
-        for (PagingResultBean<? extends Object> page : pages) {
-            log("[page" + count + "]");
-            for (Object entity : page) {
+        for (List<? extends Object> ls : list) {
+            log("[list" + count + "]");
+            for (Object entity : ls) {
                 log("  " + entity);
             }
             ++count;
         }
     }
 
-    protected void showList(List<?>... list) {
+    protected void showPage(PagingResultBean<?>... pages) {
         int count = 1;
-        for (List<? extends Object> ls : list) {
-            log("[list" + count + "]");
-            for (Object entity : ls) {
+        for (PagingResultBean<? extends Object> page : pages) {
+            log("[page" + count + "]");
+            for (Object entity : page) {
                 log("  " + entity);
             }
             ++count;
@@ -720,11 +711,15 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Date Helper
     //                                                                         ===========
     protected LocalDate currentLocalDate() {
-        return DfTypeUtil.toLocalDate(currentDate(), getFinalTimeZone());
+        return toLocalDate(currentDate());
     }
 
     protected LocalDateTime currentLocalDateTime() {
-        return DfTypeUtil.toLocalDateTime(currentDate(), getFinalTimeZone());
+        return toLocalDateTime(currentDate());
+    }
+
+    protected LocalTime currentLocalTime() {
+        return toLocalTime(currentDate());
     }
 
     protected Date currentDate() {
@@ -736,11 +731,15 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     protected LocalDate toLocalDate(Object obj) {
-        return DfTypeUtil.toLocalDate(obj, getFinalTimeZone());
+        return DfTypeUtil.toLocalDate(obj, getUnitTimeZone());
     }
 
     protected LocalDateTime toLocalDateTime(Object obj) {
-        return DfTypeUtil.toLocalDateTime(obj, getFinalTimeZone());
+        return DfTypeUtil.toLocalDateTime(obj, getUnitTimeZone());
+    }
+
+    protected LocalTime toLocalTime(Object obj) {
+        return DfTypeUtil.toLocalTime(obj, getUnitTimeZone());
     }
 
     protected Date toDate(Object obj) {
@@ -751,7 +750,7 @@ public abstract class PlainTestCase extends TestCase {
         return DfTypeUtil.toTimestamp(obj);
     }
 
-    protected TimeZone getFinalTimeZone() {
+    protected TimeZone getUnitTimeZone() {
         return DBFluteSystem.getFinalTimeZone();
     }
 
@@ -823,9 +822,9 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         ===========
     // reserved interfaces
     /**
-     * Begin new transaction (even if the transaction has already been begun). <br />
-     * You can manually commit or roll-back at your favorite timing by returned transaction resource. <br />
-     * On the other hand, you might have mistake of transaction handling. <br />
+     * Begin new transaction (even if the transaction has already been begun). <br>
+     * You can manually commit or roll-back at your favorite timing by returned transaction resource. <br>
+     * On the other hand, you might have mistake of transaction handling. <br>
      * So, also you can use {@link #performNewTransaction(TransactionPerformer)}. (easier)
      * @return The resource of transaction, you can commit or roll-back it. (basically NotNull: if null, transaction unsupported)
      */
@@ -849,7 +848,7 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Perform the process in new transaction (even if the transaction has already been begun). <br />
+     * Perform the process in new transaction (even if the transaction has already been begun). <br>
      * You can select commit or roll-back by returned value of the callback method. 
      * <pre>
      * performNewTransaction(new TransactionPerformer() {
@@ -918,7 +917,7 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Cannon-ball
     //                                                                         ===========
     /**
-     * Execute the cannon-ball run. (Do you know cannon-ball run?) <br />
+     * Execute the cannon-ball run. (Do you know cannon-ball run?) <br>
      * Default thread count is 10, and repeat count is 1.
      * <pre>
      * <span style="color: #FD4747">cannonball</span>(new CannonballRun() {

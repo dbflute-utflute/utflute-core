@@ -68,8 +68,8 @@ public class CannonballDragon {
     //                                                                            Overtime
     //                                                                            ========
     /**
-     * Release waiting cars if overtime. <br />
-     * The default allowed time for the plan is 3000 milliseconds. <br />
+     * Release waiting cars if overtime. <br>
+     * The default allowed time for the plan is 3000 milliseconds. <br>
      * you can reset it by this method.
      * @param millis The milliseconds until overtime. (NotMinus)
      */

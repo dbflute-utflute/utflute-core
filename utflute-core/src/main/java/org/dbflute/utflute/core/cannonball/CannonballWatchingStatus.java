@@ -19,7 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * The status of watching project A plan. <br />
+ * The status of watching project A plan. <br>
  * This methods should be called in synchronized scope.
  * @author jflute
  * @since 0.3.8 (2014/03/03 Monday)

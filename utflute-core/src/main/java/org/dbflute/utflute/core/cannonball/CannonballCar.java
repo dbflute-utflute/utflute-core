@@ -84,7 +84,7 @@ public class CannonballCar {
     }
 
     /**
-     * Execute project A plan for the entry. (other cars wait for the plan completion) <br />
+     * Execute project A plan for the entry. (other cars wait for the plan completion) <br>
      * But if the plan costs 3 seconds (as default), other cars go without waiting the plan completion.
      * <pre>
      * cannonball(new CannonballRun() {

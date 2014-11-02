@@ -89,7 +89,7 @@ public class CannonballOption {
     }
 
     /**
-     * Expect the goal results of all cars are same. <br />
+     * Expect the goal results of all cars are same. <br>
      * You can set goal result like this:
      * <pre>
      * cannonball(new CannonballRun() {
