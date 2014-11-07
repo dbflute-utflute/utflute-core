@@ -271,7 +271,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
     }
 
     protected abstract Map<Class<? extends Annotation>, BindingAnnotationRule> xprovideBindingAnnotationRuleMap();
-    
+
     protected String xfilterByBindingNamingRule(String propertyName, Class<?> propertyType) {
         return null; // as default: means no filter
     }
@@ -352,6 +352,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
 
     /**
      * Get component from DI container for the type.
+     * @param <COMPONENT> The type of component.
      * @param type The type of component to find. (NotNull)
      * @return The instance of the component. (NotNull: if not found, throws exception)
      */
@@ -359,6 +360,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
 
     /**
      * Get component from DI container for the name.
+     * @param <COMPONENT> The type of component.
      * @param name The name of component to find. (NotNull)
      * @return The instance of the component. (NotNull: if not found, throws exception)
      */

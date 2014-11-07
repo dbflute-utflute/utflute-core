@@ -19,6 +19,7 @@ package org.dbflute.utflute.core.cannonball;
  * @author jflute
  * @since 0.3.8 (2014/03/03 Monday)
  */
+@FunctionalInterface
 public interface CannonballProjectA {
 
     /**

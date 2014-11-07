@@ -53,10 +53,6 @@ import org.dbflute.utflute.core.policestory.miscfile.PoliceStoryMiscFileHandler;
 import org.dbflute.utflute.core.policestory.pjresource.PoliceStoryProjectResourceHandler;
 import org.dbflute.utflute.core.policestory.webresource.PoliceStoryWebResourceHandler;
 import org.dbflute.utflute.core.smallhelper.ExceptionExaminer;
-import org.dbflute.utflute.core.thread.ThreadFireExecution;
-import org.dbflute.utflute.core.thread.ThreadFireHelper;
-import org.dbflute.utflute.core.thread.ThreadFireMan;
-import org.dbflute.utflute.core.thread.ThreadFireOption;
 import org.dbflute.utflute.core.transaction.TransactionPerformFailureException;
 import org.dbflute.utflute.core.transaction.TransactionPerformer;
 import org.dbflute.utflute.core.transaction.TransactionResource;
@@ -925,6 +921,7 @@ public abstract class PlainTestCase extends TestCase {
      *         ... <span style="color: #3F7E5E">// 10 threads is running at the same time</span>
      *     }
      * }, new CannonballOption().expect...);
+     * </pre>
      * @param run The callback for the run. (NotNull)
      * @param option The option for the run. (NotNull)
      */
@@ -978,6 +975,19 @@ public abstract class PlainTestCase extends TestCase {
         };
     }
 
+    /**
+     * Sleep the current thread.
+     * @param millis The millisecond to sleep.
+     */
+    protected void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            String msg = "Failed to sleep but I want to sleep here...Zzz...";
+            throw new IllegalStateException(msg, e);
+        }
+    }
+
     // ===================================================================================
     //                                                                        Police Story
     //                                                                        ============
@@ -985,7 +995,7 @@ public abstract class PlainTestCase extends TestCase {
      * Tell me about your police story of Java class chase. (default: '.java' files under src/main/java)
      * <pre>
      * policeStoryOfJavaClassChase(new PoliceStoryJavaClassHandler() {
-     *     public void handle(File srcFile, Class<?> clazz) {
+     *     public void handle(File srcFile, Class&lt;?&gt; clazz) {
      *         <span style="color: #3F7E5E">// handle the class as you like it</span>
      *         <span style="color: #3F7E5E">// e.g. clazz.getMethods(), readLine(srcFile, ...)</span>
      *     }
@@ -1116,69 +1126,6 @@ public abstract class PlainTestCase extends TestCase {
      */
     protected File getTestCaseBuildDir() {
         return DfResourceUtil.getBuildDir(getClass()); // target/test-classes
-    }
-
-    // ===================================================================================
-    //                                                                         Thread Fire
-    //                                                                         ===========
-    // not deprecated for now (only treated as old style in comment)
-    /**
-     * It's old style. You can use cannonball().
-     * @param execution The execution of thread-fire
-     */
-    protected <RESULT> void threadFire(ThreadFireExecution<RESULT> execution) {
-        threadFire(execution, new ThreadFireOption());
-    }
-
-    /**
-     * It's old style. You can use cannonball().
-     * @param execution The execution of thread-fire
-     * @param option The option of thread-fire
-     */
-    protected <RESULT> void threadFire(ThreadFireExecution<RESULT> execution, ThreadFireOption option) {
-        final ThreadFireMan fireMan = new ThreadFireMan(new ThreadFireHelper() {
-            public TransactionResource help_beginTransaction() {
-                return beginNewTransaction();
-            }
-
-            public void help_prepareAccessContext() {
-                xprepareAccessContext();
-            }
-
-            public void help_clearAccessContext() {
-                xclearAccessContext();
-            }
-
-            public void help_assertEquals(Object expected, Object actual) {
-                assertEquals(expected, actual);
-            }
-
-            public void help_fail(String msg) {
-                fail(msg);
-            }
-
-            public void help_log(Object... msgs) {
-                log(msgs);
-            }
-
-            public String help_ln() {
-                return ln();
-            }
-        });
-        fireMan.threadFire(execution, option);
-    }
-
-    /**
-     * Sleep the current thread.
-     * @param millis The millisecond to sleep.
-     */
-    protected void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            String msg = "Failed to sleep but I want to sleep here...Zzz...";
-            throw new IllegalStateException(msg, e);
-        }
     }
 
     // ===================================================================================
