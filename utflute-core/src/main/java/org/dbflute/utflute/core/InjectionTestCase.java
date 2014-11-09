@@ -79,7 +79,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * Does it use one-time container? (re-initialize container per one test case?)
      * @return The determination, true or false.
      */
-    protected boolean isUseOneTimeContainer() { // customize point
+    protected boolean isUseOneTimeContainer() { // customize point #extPoint
         return false;
     }
 
@@ -98,7 +98,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * Does it suppress transaction for the test case? (non-transaction as default?)
      * @return The determination, true or false.
      */
-    protected boolean isSuppressTestCaseTransaction() { // customize point
+    protected boolean isSuppressTestCaseTransaction() { // customize point #extPoint
         return false; // default is to use the transaction
     }
 
@@ -131,7 +131,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * Does it commit transaction for the test case? (commit updated data?)
      * @return The determination, true or false.
      */
-    protected boolean isCommitTestCaseTransaction() { // customize point
+    protected boolean isCommitTestCaseTransaction() { // customize point #extPoint
         return false; // default is to roll-back always
     }
 
@@ -179,7 +179,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * Does it destroy container instance at tear-down? (next test uses new-created container?)
      * @return The determination, true or false.
      */
-    protected boolean isDestroyContainerAtTearDown() { // customize point
+    protected boolean isDestroyContainerAtTearDown() { // customize point #extPoint
         return false; // default is to cache the instance
     }
 
@@ -217,7 +217,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
         };
     }
 
-    protected ComponentBinder createTestCaseComponentBinder() { // customize point
+    protected ComponentBinder createTestCaseComponentBinder() { // customize point #extPoint
         final ComponentBinder binder = xcreateBasicComponentBinder();
         binder.stopBindingAtSuper(InjectionTestCase.class);
         binder.looseBinding();
@@ -296,7 +296,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
         return xdoInject(bean, binder);
     }
 
-    protected ComponentBinder createOuterComponentBinder(Object bean) { // customize point
+    protected ComponentBinder createOuterComponentBinder(Object bean) { // customize point #extPoint
         final ComponentBinder binder = xcreateBasicComponentBinder();
         xadjustOuterComponentBinder(bean, binder);
         return binder;
@@ -308,7 +308,6 @@ public abstract class InjectionTestCase extends PlainTestCase {
         if (_xmockInstanceList != null) {
             mockInstanceList.addAll(_xmockInstanceList);
         }
-        prepareMockInstance(mockInstanceList);
         for (Object mockInstance : mockInstanceList) {
             if (mockInstance == bean) { // check instance so uses '=='
                 continue; // suppress infinity loop just in case
@@ -321,24 +320,9 @@ public abstract class InjectionTestCase extends PlainTestCase {
         if (_xnonBindingTypeList != null) {
             nonBindingTypeList.addAll(_xnonBindingTypeList);
         }
-        prepareNoBindingType(nonBindingTypeList);
         for (Class<?> nonBindingType : nonBindingTypeList) {
             binder.addNonBindingType(nonBindingType);
         }
-    }
-
-    /**
-     * @param mockInstanceList The list of mock instance. (NotNull)
-     * @deprecated You can use registerMockInstance().
-     */
-    protected void prepareMockInstance(List<Object> mockInstanceList) { // option by overriding
-    }
-
-    /**
-     * @param nonBindingTypeList The list of non-binding type. (NotNull)
-     * @deprecated You can suppressBindingOf().
-     */
-    protected void prepareNoBindingType(List<Class<?>> nonBindingTypeList) { // option by overriding
     }
 
     protected BoundResult xdoInject(Object bean, ComponentBinder binder) {

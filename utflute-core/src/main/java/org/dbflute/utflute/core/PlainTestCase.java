@@ -901,8 +901,8 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Get the data source for database.
-     * @return The instance from DI container. (basically NotNull: if null, data source unsupported)
+     * Get the (main) data source for database.
+     * @return The instance from DI container. (basically NotNull: if null, data source unsupported or cannot be resolved)
      */
     protected DataSource getDataSource() {
         // should be overridden by DI container's test case
@@ -935,8 +935,17 @@ public abstract class PlainTestCase extends TestCase {
      * Create the instance of cannon-ball director.
      * @return The new-created instance of the director. (NotNull)
      */
-    protected CannonballDirector createCannonballDirector() { // customize point
-        return new CannonballDirector(xcreateCannonballStaff());
+    protected CannonballDirector createCannonballDirector() {
+        return newCannonballDirector(xcreateCannonballStaff());
+    }
+
+    /**
+     * New the instance of cannon-ball director.
+     * @param cannonballStaff The staff for cannon-ball. (NotNull)
+     * @return The new-created instance of the director. (NotNull)
+     */
+    protected CannonballDirector newCannonballDirector(CannonballStaff cannonballStaff) { // customize point #extPoint
+        return new CannonballDirector(cannonballStaff);
     }
 
     /**
@@ -1082,8 +1091,18 @@ public abstract class PlainTestCase extends TestCase {
      * Create the instance of police story for many story.
      * @return The new-created instance of the police story. (NotNull)
      */
-    protected PoliceStory createPoliceStory() { // customize point
-        return new PoliceStory(this, getProjectDir());
+    protected PoliceStory createPoliceStory() {
+        return newPoliceStory(this, getProjectDir());
+    }
+
+    /**
+     * New the instance of police story for many story.
+     * @param testCase The instsance of test case, basically this. (NotNull)
+     * @param projectDir The root directory of project. (NotNull)
+     * @return The new-created instance of the police story. (NotNull)
+     */
+    protected PoliceStory newPoliceStory(Object testCase, File projectDir) { // customize point #extPoint
+        return new PoliceStory(testCase, projectDir);
     }
 
     // ===================================================================================
@@ -1108,7 +1127,7 @@ public abstract class PlainTestCase extends TestCase {
      * Create the filesystem player for e.g. reading line.
      * @return The new-created instance of the player. (NotNull)
      */
-    protected FilesystemPlayer createFilesystemPlayer() { // customize point
+    protected FilesystemPlayer createFilesystemPlayer() { // customize point #extPoint
         return new FilesystemPlayer();
     }
 
@@ -1116,7 +1135,7 @@ public abstract class PlainTestCase extends TestCase {
      * Get the directory object of the (application or Eclipse) project. (default: target/test-classes/../../)
      * @return The file object of the directory. (NotNull)
      */
-    protected File getProjectDir() { // customize point
+    protected File getProjectDir() { // customize point #extPoint
         return getTestCaseBuildDir().getParentFile().getParentFile(); // target/test-classes/../../
     }
 
