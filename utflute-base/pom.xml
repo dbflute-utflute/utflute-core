@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.5.0-pilotA-SNAPSHOT</version>
+	<version>0.5.0-RC1</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
@@ -13,8 +13,8 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<dbflute.version>1.1.0-pilotA-SNAPSHOT</dbflute.version>
-		<utflute.core.version>0.5.0-pilotA-SNAPSHOT</utflute.core.version>
+		<dbflute.version>1.1.0-RC1</dbflute.version>
+		<utflute.core.version>0.5.0-RC1</utflute.core.version>
 
 		<seasar.version>2.4.46</seasar.version>
 		<spring.version>4.1.1.RELEASE</spring.version>
@@ -144,8 +144,6 @@
 					<encoding>UTF-8</encoding>
 					<docencoding>UTF-8</docencoding>
 					<charset>UTF-8</charset>
-					<!-- to avoid self-closing check e.g. br-tag (checked since java8) -->
-					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>
 				<executions>
 					<execution>
@@ -163,6 +161,24 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!--
+			 'xxx.jar.asc' file can be created by this plug-in
+			 you can deploy by 'mvn -e clean deploy -Dgpg.keyname=xxx -Dgpg.passphrase="xxx"'
+			 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 

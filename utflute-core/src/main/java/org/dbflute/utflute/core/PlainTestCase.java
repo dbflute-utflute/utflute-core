@@ -21,6 +21,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -52,10 +53,6 @@ import org.dbflute.utflute.core.policestory.miscfile.PoliceStoryMiscFileHandler;
 import org.dbflute.utflute.core.policestory.pjresource.PoliceStoryProjectResourceHandler;
 import org.dbflute.utflute.core.policestory.webresource.PoliceStoryWebResourceHandler;
 import org.dbflute.utflute.core.smallhelper.ExceptionExaminer;
-import org.dbflute.utflute.core.thread.ThreadFireExecution;
-import org.dbflute.utflute.core.thread.ThreadFireHelper;
-import org.dbflute.utflute.core.thread.ThreadFireMan;
-import org.dbflute.utflute.core.thread.ThreadFireOption;
 import org.dbflute.utflute.core.transaction.TransactionPerformFailureException;
 import org.dbflute.utflute.core.transaction.TransactionPerformer;
 import org.dbflute.utflute.core.transaction.TransactionResource;
@@ -454,7 +451,7 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Assert that the list has any element (not empty). <br />
+     * Assert that the list has any element (not empty). <br>
      * You can use this to guarantee assertion in loop like this:
      * <pre>
      * List&lt;Member&gt; memberList = memberBhv.selectList(cb);
@@ -486,16 +483,6 @@ public abstract class PlainTestCase extends TestCase {
     protected void assertHasZeroElement(Collection<?> emptyList) {
         if (!emptyList.isEmpty()) {
             fail("the list should have zero element (empty) but: " + emptyList);
-        }
-    }
-
-    /**
-     * @param list
-     * @deprecated use {@link #assertHasAnyElement(Collection)}
-     */
-    protected void assertListNotEmpty(List<?> list) { // old style
-        if (list.isEmpty()) {
-            fail("the list should NOT be empty but empty.");
         }
     }
 
@@ -592,7 +579,7 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                      Logging Helper
     //                                                                      ==============
     /**
-     * Log the messages. <br />
+     * Log the messages. <br>
      * If you set an exception object to the last element, it shows stack traces.
      * <pre>
      * Member member = ...;
@@ -656,22 +643,22 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                         Show Helper
     //                                                                         ===========
-    protected void showPage(PagingResultBean<?>... pages) {
+    protected void showList(List<?>... list) {
         int count = 1;
-        for (PagingResultBean<? extends Object> page : pages) {
-            log("[page" + count + "]");
-            for (Object entity : page) {
+        for (List<? extends Object> ls : list) {
+            log("[list" + count + "]");
+            for (Object entity : ls) {
                 log("  " + entity);
             }
             ++count;
         }
     }
 
-    protected void showList(List<?>... list) {
+    protected void showPage(PagingResultBean<?>... pages) {
         int count = 1;
-        for (List<? extends Object> ls : list) {
-            log("[list" + count + "]");
-            for (Object entity : ls) {
+        for (PagingResultBean<? extends Object> page : pages) {
+            log("[page" + count + "]");
+            for (Object entity : page) {
                 log("  " + entity);
             }
             ++count;
@@ -720,11 +707,15 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Date Helper
     //                                                                         ===========
     protected LocalDate currentLocalDate() {
-        return DfTypeUtil.toLocalDate(currentDate(), getFinalTimeZone());
+        return toLocalDate(currentDate());
     }
 
     protected LocalDateTime currentLocalDateTime() {
-        return DfTypeUtil.toLocalDateTime(currentDate(), getFinalTimeZone());
+        return toLocalDateTime(currentDate());
+    }
+
+    protected LocalTime currentLocalTime() {
+        return toLocalTime(currentDate());
     }
 
     protected Date currentDate() {
@@ -736,11 +727,15 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     protected LocalDate toLocalDate(Object obj) {
-        return DfTypeUtil.toLocalDate(obj, getFinalTimeZone());
+        return DfTypeUtil.toLocalDate(obj, getUnitTimeZone());
     }
 
     protected LocalDateTime toLocalDateTime(Object obj) {
-        return DfTypeUtil.toLocalDateTime(obj, getFinalTimeZone());
+        return DfTypeUtil.toLocalDateTime(obj, getUnitTimeZone());
+    }
+
+    protected LocalTime toLocalTime(Object obj) {
+        return DfTypeUtil.toLocalTime(obj, getUnitTimeZone());
     }
 
     protected Date toDate(Object obj) {
@@ -751,7 +746,7 @@ public abstract class PlainTestCase extends TestCase {
         return DfTypeUtil.toTimestamp(obj);
     }
 
-    protected TimeZone getFinalTimeZone() {
+    protected TimeZone getUnitTimeZone() {
         return DBFluteSystem.getFinalTimeZone();
     }
 
@@ -823,9 +818,9 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         ===========
     // reserved interfaces
     /**
-     * Begin new transaction (even if the transaction has already been begun). <br />
-     * You can manually commit or roll-back at your favorite timing by returned transaction resource. <br />
-     * On the other hand, you might have mistake of transaction handling. <br />
+     * Begin new transaction (even if the transaction has already been begun). <br>
+     * You can manually commit or roll-back at your favorite timing by returned transaction resource. <br>
+     * On the other hand, you might have mistake of transaction handling. <br>
      * So, also you can use {@link #performNewTransaction(TransactionPerformer)}. (easier)
      * @return The resource of transaction, you can commit or roll-back it. (basically NotNull: if null, transaction unsupported)
      */
@@ -849,7 +844,7 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Perform the process in new transaction (even if the transaction has already been begun). <br />
+     * Perform the process in new transaction (even if the transaction has already been begun). <br>
      * You can select commit or roll-back by returned value of the callback method. 
      * <pre>
      * performNewTransaction(new TransactionPerformer() {
@@ -906,8 +901,8 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Get the data source for database.
-     * @return The instance from DI container. (basically NotNull: if null, data source unsupported)
+     * Get the (main) data source for database.
+     * @return The instance from DI container. (basically NotNull: if null, data source unsupported or cannot be resolved)
      */
     protected DataSource getDataSource() {
         // should be overridden by DI container's test case
@@ -918,7 +913,7 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Cannon-ball
     //                                                                         ===========
     /**
-     * Execute the cannon-ball run. (Do you know cannon-ball run?) <br />
+     * Execute the cannon-ball run. (Do you know cannon-ball run?) <br>
      * Default thread count is 10, and repeat count is 1.
      * <pre>
      * <span style="color: #FD4747">cannonball</span>(new CannonballRun() {
@@ -926,6 +921,7 @@ public abstract class PlainTestCase extends TestCase {
      *         ... <span style="color: #3F7E5E">// 10 threads is running at the same time</span>
      *     }
      * }, new CannonballOption().expect...);
+     * </pre>
      * @param run The callback for the run. (NotNull)
      * @param option The option for the run. (NotNull)
      */
@@ -939,8 +935,17 @@ public abstract class PlainTestCase extends TestCase {
      * Create the instance of cannon-ball director.
      * @return The new-created instance of the director. (NotNull)
      */
-    protected CannonballDirector createCannonballDirector() { // customize point
-        return new CannonballDirector(xcreateCannonballStaff());
+    protected CannonballDirector createCannonballDirector() {
+        return newCannonballDirector(xcreateCannonballStaff());
+    }
+
+    /**
+     * New the instance of cannon-ball director.
+     * @param cannonballStaff The staff for cannon-ball. (NotNull)
+     * @return The new-created instance of the director. (NotNull)
+     */
+    protected CannonballDirector newCannonballDirector(CannonballStaff cannonballStaff) { // customize point #extPoint
+        return new CannonballDirector(cannonballStaff);
     }
 
     /**
@@ -979,6 +984,19 @@ public abstract class PlainTestCase extends TestCase {
         };
     }
 
+    /**
+     * Sleep the current thread.
+     * @param millis The millisecond to sleep.
+     */
+    protected void sleep(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            String msg = "Failed to sleep but I want to sleep here...Zzz...";
+            throw new IllegalStateException(msg, e);
+        }
+    }
+
     // ===================================================================================
     //                                                                        Police Story
     //                                                                        ============
@@ -986,7 +1004,7 @@ public abstract class PlainTestCase extends TestCase {
      * Tell me about your police story of Java class chase. (default: '.java' files under src/main/java)
      * <pre>
      * policeStoryOfJavaClassChase(new PoliceStoryJavaClassHandler() {
-     *     public void handle(File srcFile, Class<?> clazz) {
+     *     public void handle(File srcFile, Class&lt;?&gt; clazz) {
      *         <span style="color: #3F7E5E">// handle the class as you like it</span>
      *         <span style="color: #3F7E5E">// e.g. clazz.getMethods(), readLine(srcFile, ...)</span>
      *     }
@@ -1073,8 +1091,18 @@ public abstract class PlainTestCase extends TestCase {
      * Create the instance of police story for many story.
      * @return The new-created instance of the police story. (NotNull)
      */
-    protected PoliceStory createPoliceStory() { // customize point
-        return new PoliceStory(this, getProjectDir());
+    protected PoliceStory createPoliceStory() {
+        return newPoliceStory(this, getProjectDir());
+    }
+
+    /**
+     * New the instance of police story for many story.
+     * @param testCase The instsance of test case, basically this. (NotNull)
+     * @param projectDir The root directory of project. (NotNull)
+     * @return The new-created instance of the police story. (NotNull)
+     */
+    protected PoliceStory newPoliceStory(Object testCase, File projectDir) { // customize point #extPoint
+        return new PoliceStory(testCase, projectDir);
     }
 
     // ===================================================================================
@@ -1099,7 +1127,7 @@ public abstract class PlainTestCase extends TestCase {
      * Create the filesystem player for e.g. reading line.
      * @return The new-created instance of the player. (NotNull)
      */
-    protected FilesystemPlayer createFilesystemPlayer() { // customize point
+    protected FilesystemPlayer createFilesystemPlayer() { // customize point #extPoint
         return new FilesystemPlayer();
     }
 
@@ -1107,7 +1135,7 @@ public abstract class PlainTestCase extends TestCase {
      * Get the directory object of the (application or Eclipse) project. (default: target/test-classes/../../)
      * @return The file object of the directory. (NotNull)
      */
-    protected File getProjectDir() { // customize point
+    protected File getProjectDir() { // customize point #extPoint
         return getTestCaseBuildDir().getParentFile().getParentFile(); // target/test-classes/../../
     }
 
@@ -1117,69 +1145,6 @@ public abstract class PlainTestCase extends TestCase {
      */
     protected File getTestCaseBuildDir() {
         return DfResourceUtil.getBuildDir(getClass()); // target/test-classes
-    }
-
-    // ===================================================================================
-    //                                                                         Thread Fire
-    //                                                                         ===========
-    // not deprecated for now (only treated as old style in comment)
-    /**
-     * It's old style. You can use cannonball().
-     * @param execution The execution of thread-fire
-     */
-    protected <RESULT> void threadFire(ThreadFireExecution<RESULT> execution) {
-        threadFire(execution, new ThreadFireOption());
-    }
-
-    /**
-     * It's old style. You can use cannonball().
-     * @param execution The execution of thread-fire
-     * @param option The option of thread-fire
-     */
-    protected <RESULT> void threadFire(ThreadFireExecution<RESULT> execution, ThreadFireOption option) {
-        final ThreadFireMan fireMan = new ThreadFireMan(new ThreadFireHelper() {
-            public TransactionResource help_beginTransaction() {
-                return beginNewTransaction();
-            }
-
-            public void help_prepareAccessContext() {
-                xprepareAccessContext();
-            }
-
-            public void help_clearAccessContext() {
-                xclearAccessContext();
-            }
-
-            public void help_assertEquals(Object expected, Object actual) {
-                assertEquals(expected, actual);
-            }
-
-            public void help_fail(String msg) {
-                fail(msg);
-            }
-
-            public void help_log(Object... msgs) {
-                log(msgs);
-            }
-
-            public String help_ln() {
-                return ln();
-            }
-        });
-        fireMan.threadFire(execution, option);
-    }
-
-    /**
-     * Sleep the current thread.
-     * @param millis The millisecond to sleep.
-     */
-    protected void sleep(int millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException e) {
-            String msg = "Failed to sleep but I want to sleep here...Zzz...";
-            throw new IllegalStateException(msg, e);
-        }
     }
 
     // ===================================================================================

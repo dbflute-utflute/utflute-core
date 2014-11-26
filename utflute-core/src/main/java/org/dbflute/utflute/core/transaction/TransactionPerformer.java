@@ -35,7 +35,7 @@ public interface TransactionPerformer {
     /**
      * Perform the process in new transaction.
      * @return Does it commit the transaction? (false: roll-back)
-     * @throws SQLException
+     * @throws SQLException When it fails to handle the SQL in the performance.
      */
     boolean perform() throws SQLException;
 }
