@@ -607,9 +607,14 @@ public abstract class PlainTestCase extends TestCase {
         }
         final StringBuilder sb = new StringBuilder();
         int index = 0;
+        int skipCount = 0;
         for (Object msg : msgs) {
             if (index == arrayLength - 1 && cause != null) { // last loop and it is cause
                 break;
+            }
+            if (skipCount > 0) { // already resolved as variable
+                --skipCount; // until count zero
+                continue;
             }
             if (sb.length() > 0) {
                 sb.append(", ");
@@ -620,7 +625,20 @@ public abstract class PlainTestCase extends TestCase {
             } else if (msg instanceof Date) {
                 appended = toString(msg, "yyyy/MM/dd");
             } else {
-                appended = msg != null ? msg.toString() : null;
+                String strMsg = msg != null ? msg.toString() : null;
+                int nextIndex = index + 1;
+                skipCount = 0; // just in case
+                while (strMsg.contains("{}")) {
+                    if (arrayLength <= nextIndex) {
+                        break;
+                    }
+                    final Object nextObj = msgs[nextIndex];
+                    final String replacement = nextObj != null ? nextObj.toString() : "null";
+                    strMsg = strMsg.replaceFirst("\\{\\}", replacement);
+                    ++skipCount;
+                    ++nextIndex;
+                }
+                appended = strMsg;
             }
             sb.append(appended);
             ++index;
