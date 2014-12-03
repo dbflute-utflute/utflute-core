@@ -628,7 +628,7 @@ public abstract class PlainTestCase extends TestCase {
                 String strMsg = msg != null ? msg.toString() : null;
                 int nextIndex = index + 1;
                 skipCount = 0; // just in case
-                while (strMsg.contains("{}")) {
+                while (strMsg != null && strMsg.contains("{}")) {
                     if (arrayLength <= nextIndex) {
                         break;
                     }
