@@ -213,23 +213,27 @@ public class ComponentBinder {
     //                                        Find Component
     //                                        --------------
     protected Object findInjectedComponent(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
-        Object component = findMockInstance(propertyType);
-        if (component != null) {
-            return component;
+        final Object mock = findMockInstance(propertyType);
+        if (mock != null) {
+            return mock;
         }
         if (isFindingByNameOnlyProperty(propertyName, propertyType, bindingAnno)) {
             return doFindInjectedComponentByName(propertyName, propertyType, bindingAnno);
+        } else if (isFindingByTypeOnlyProperty(propertyName, propertyType, bindingAnno)) {
+            return doFindInjectedComponentByType(propertyType);
         }
-        if (hasComponent(propertyType)) {
-            component = getComponent(propertyType);
+        final Object byName = doFindInjectedComponentByName(propertyName, propertyType, bindingAnno);
+        return byName != null ? byName : doFindInjectedComponentByType(propertyType);
+    }
+
+    protected Object findMockInstance(Class<?> type) {
+        final List<Object> mockInstanceList = _mockInstanceList;
+        for (Object mockInstance : mockInstanceList) {
+            if (type.isInstance(mockInstance)) {
+                return mockInstance;
+            }
         }
-        if (component != null) {
-            return component;
-        }
-        if (isByTypeOnlyAnnotation(bindingAnno)) {
-            return null;
-        }
-        return doFindInjectedComponentByName(propertyName, propertyType, bindingAnno);
+        return null;
     }
 
     protected boolean isFindingByNameOnlyProperty(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
@@ -252,6 +256,10 @@ public class ComponentBinder {
         return _byTypeInterfaceOnly && !propertyType.isInterface();
     }
 
+    protected boolean isFindingByTypeOnlyProperty(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
+        return isByTypeOnlyAnnotation(bindingAnno);
+    }
+
     protected Object doFindInjectedComponentByName(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
         final String specifiedName = extractSpecifiedName(bindingAnno);
         final String realName;
@@ -269,14 +277,8 @@ public class ComponentBinder {
         return hasComponent(name) ? getComponent(name) : null;
     }
 
-    protected Object findMockInstance(Class<?> type) {
-        final List<Object> mockInstanceList = _mockInstanceList;
-        for (Object mockInstance : mockInstanceList) {
-            if (type.isInstance(mockInstance)) {
-                return mockInstance;
-            }
-        }
-        return null;
+    protected Object doFindInjectedComponentByType(Class<?> propertyType) {
+        return hasComponent(propertyType) ? getComponent(propertyType) : null;
     }
 
     protected String normalizeName(String name) {
@@ -365,16 +367,14 @@ public class ComponentBinder {
         for (Field field : boundFieldList) {
             try {
                 field.set(bean, null);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
         boundFieldList.clear();
         final List<DfPropertyDesc> boundPropertyList = boundResult.getBoundPropertyList();
         for (DfPropertyDesc propertyDesc : boundPropertyList) {
             try {
                 propertyDesc.setValue(bean, null);
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
         }
         boundPropertyList.clear();
     }
