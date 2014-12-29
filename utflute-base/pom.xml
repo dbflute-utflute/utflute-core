@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.5.0-RC3</version>
+	<version>0.5.0-pilotK-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
@@ -14,7 +14,7 @@
 
 	<properties>
 		<dbflute.version>1.1.0-RC3</dbflute.version>
-		<utflute.core.version>0.5.0-RC3</utflute.core.version>
+		<utflute.core.version>0.5.0-pilotK-SNAPSHOT</utflute.core.version>
 
 		<seasar.version>2.4.46</seasar.version>
 		<spring.version>4.1.3.RELEASE</spring.version>
