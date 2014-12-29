@@ -47,8 +47,10 @@ public class ComponentBinder {
     protected boolean _annotationOnlyBinding; // e.g. for Guice
     protected boolean _byTypeInterfaceOnly; // e.g. for Seasar
     protected boolean _looseBinding; // for test-case class
+    protected boolean _overridingBinding; // for nested binding
     protected final List<Object> _mockInstanceList = DfCollectionUtil.newArrayList();
     protected final List<Class<?>> _nonBindingTypeList = DfCollectionUtil.newArrayList();
+    protected final Map<Class<?>, Object> _nestedBindingMap = DfCollectionUtil.newHashMap();
 
     // ===================================================================================
     //                                                                         Constructor
@@ -90,6 +92,14 @@ public class ComponentBinder {
         _looseBinding = false;
     }
 
+    public void overridingBinding() {
+        _overridingBinding = true;
+    }
+
+    public void cancelOverridingBinding() {
+        _overridingBinding = false;
+    }
+
     public void addMockInstance(Object mockInstance) {
         if (mockInstance == null) {
             String msg = "The argument 'mockInstance' should not be null.";
@@ -106,6 +116,26 @@ public class ComponentBinder {
         _nonBindingTypeList.add(nonBindingType);
     }
 
+    // cannot revert injected component reference, so emergency option e.g. HttpServletRequest
+    public void addNestedBindingComponent(Class<?> bindingType, Object component) {
+        if (bindingType == null) {
+            String msg = "The argument 'bindingType' should not be null.";
+            throw new IllegalArgumentException(msg);
+        }
+        _nestedBindingMap.put(bindingType, component);
+    }
+
+    protected void inheritParentBinderOption(ComponentBinder binder) {
+        binder._terminalSuperClass = _terminalSuperClass;
+        binder._annotationOnlyBinding = _annotationOnlyBinding;
+        binder._byTypeInterfaceOnly = _byTypeInterfaceOnly;
+        binder._looseBinding = _looseBinding;
+        binder._overridingBinding = _overridingBinding;
+        binder._mockInstanceList.addAll(_mockInstanceList);
+        binder._nonBindingTypeList.addAll(_nonBindingTypeList);
+        binder._nestedBindingMap.putAll(_nestedBindingMap);
+    }
+
     // ===================================================================================
     //                                                                   Component Binding
     //                                                                   =================
@@ -113,7 +143,7 @@ public class ComponentBinder {
     //                                                 Entry
     //                                                 -----
     public BoundResult bindComponent(Object bean) {
-        final BoundResult boundResult = new BoundResult();
+        final BoundResult boundResult = new BoundResult(bean);
         doBindFieldComponent(bean, boundResult);
         doBindPropertyComponent(bean, boundResult);
         return boundResult;
@@ -148,10 +178,10 @@ public class ComponentBinder {
             if (isNonBindingAnnotation(bindingAnno)) {
                 return;
             }
-            if (getFieldValue(field, bean) != null) {
+            if (!_overridingBinding && getFieldValue(field, bean) != null) {
                 return;
             }
-            final Object component = findInjectedComponent(field.getName(), fieldType, bindingAnno);
+            final Object component = findInjectedComponent(field.getName(), fieldType, bindingAnno, boundResult);
             if (component != null) {
                 setFieldValue(field, bean, component);
                 boundResult.addBoundField(field);
@@ -198,10 +228,10 @@ public class ComponentBinder {
         if (!isBindTargetClass(writeMethod.getDeclaringClass())) {
             return;
         }
-        if (propertyDesc.isReadable() && propertyDesc.getValue(bean) != null) {
+        if (!_overridingBinding && propertyDesc.isReadable() && propertyDesc.getValue(bean) != null) {
             return;
         }
-        final Object component = findInjectedComponent(propertyName, propertyType, bindingAnno);
+        final Object component = findInjectedComponent(propertyName, propertyType, bindingAnno, boundResult);
         if (component == null) {
             return;
         }
@@ -212,7 +242,13 @@ public class ComponentBinder {
     // -----------------------------------------------------
     //                                        Find Component
     //                                        --------------
-    protected Object findInjectedComponent(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
+    protected Object findInjectedComponent(String propertyName, Class<?> propertyType, Annotation bindingAnno, BoundResult boundResult) {
+        final Object component = doFindInjectedComponent(propertyName, propertyType, bindingAnno);
+        bindNestedBinding(component, boundResult);
+        return component;
+    }
+
+    protected Object doFindInjectedComponent(String propertyName, Class<?> propertyType, Annotation bindingAnno) {
         final Object mock = findMockInstance(propertyType);
         if (mock != null) {
             return mock;
@@ -335,6 +371,38 @@ public class ComponentBinder {
     }
 
     // -----------------------------------------------------
+    //                                        Nested Binding
+    //                                        --------------
+    protected void bindNestedBinding(Object bean, BoundResult boundResult) {
+        if (bean == null || _nestedBindingMap.isEmpty()) {
+            return;
+        }
+        final ComponentBinder binder = new ComponentBinder(new ComponentProvider() {
+            public <COMPONENT> COMPONENT provideComponent(String name) {
+                return null;
+            }
+
+            @SuppressWarnings("unchecked")
+            public <COMPONENT> COMPONENT provideComponent(Class<COMPONENT> type) {
+                return (COMPONENT) _nestedBindingMap.get(type);
+            }
+
+            public boolean existsComponent(String name) {
+                return false;
+            }
+
+            public boolean existsComponent(Class<?> type) {
+                return provideComponent(type) != null;
+            }
+        }, _bindingAnnotationProvider);
+        inheritParentBinderOption(binder);
+        binder._looseBinding = false; // because of container-managed component
+        binder._overridingBinding = true; // because of cannot remove reference
+        final BoundResult nestedResult = binder.bindComponent(bean);
+        boundResult.addNestedBoundResult(nestedResult);
+    }
+
+    // -----------------------------------------------------
     //                                         Assist Helper
     //                                         -------------
     protected boolean isBindTargetClass(Class<?> clazz) {
@@ -362,7 +430,8 @@ public class ComponentBinder {
     // -----------------------------------------------------
     //                                       Release Binding
     //                                       ---------------
-    public void releaseBoundComponent(Object bean, BoundResult boundResult) {
+    public void releaseBoundComponent(BoundResult boundResult) {
+        final Object bean = boundResult.getTargetBean();
         final List<Field> boundFieldList = boundResult.getBoundFieldList();
         for (Field field : boundFieldList) {
             try {
@@ -377,6 +446,10 @@ public class ComponentBinder {
             } catch (Exception ignored) {}
         }
         boundPropertyList.clear();
+        final List<BoundResult> nestedBoundResultList = boundResult.getNestedBoundResultList();
+        for (BoundResult nestedBoundResult : nestedBoundResultList) {
+            releaseBoundComponent(nestedBoundResult);
+        }
     }
 
     // ===================================================================================

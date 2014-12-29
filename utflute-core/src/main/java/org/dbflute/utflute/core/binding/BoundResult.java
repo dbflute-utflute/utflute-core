@@ -30,12 +30,25 @@ public class BoundResult {
     // ===================================================================================
     //                                                                           Attribute
     //                                                                           =========
+    protected final Object _targetBean;
     protected final List<Field> _boundFieldList = new ArrayList<Field>();
     protected final List<DfPropertyDesc> _boundPropertyList = new ArrayList<DfPropertyDesc>();
+    protected final List<BoundResult> _nestedBoundResultList = new ArrayList<BoundResult>();
 
     // ===================================================================================
     //                                                                         Constructor
     //                                                                         ===========
+    public BoundResult(Object targetBean) {
+        _targetBean = targetBean;
+    }
+
+    // ===================================================================================
+    //                                                                            Accessor
+    //                                                                            ========
+    public Object getTargetBean() {
+        return _targetBean;
+    }
+
     public List<Field> getBoundFieldList() {
         return _boundFieldList;
     }
@@ -44,11 +57,31 @@ public class BoundResult {
         _boundFieldList.add(boundField);
     }
 
+    public void addBoundFieldAll(List<Field> boundFieldList) {
+        _boundFieldList.addAll(boundFieldList);
+    }
+
     public List<DfPropertyDesc> getBoundPropertyList() {
         return _boundPropertyList;
     }
 
     public void addBoundProperty(DfPropertyDesc boundProperty) {
         _boundPropertyList.add(boundProperty);
+    }
+
+    public void addBoundPropertyAll(List<DfPropertyDesc> boundPropertyList) {
+        _boundPropertyList.addAll(boundPropertyList);
+    }
+
+    public List<BoundResult> getNestedBoundResultList() {
+        return _nestedBoundResultList;
+    }
+
+    public void addNestedBoundResult(BoundResult nestedBoundResult) {
+        _nestedBoundResultList.add(nestedBoundResult);
+    }
+
+    public void addNestedBoundResultAll(List<BoundResult> nestedBoundResultList) {
+        _nestedBoundResultList.addAll(nestedBoundResultList);
     }
 }
