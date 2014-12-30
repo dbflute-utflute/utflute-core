@@ -13,7 +13,7 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<dbflute.version>1.1.0-RC3</dbflute.version>
+		<dbflute.version>1.1.0-pilotK-SNAPSHOT</dbflute.version>
 		<utflute.core.version>0.5.0-pilotK-SNAPSHOT</utflute.core.version>
 
 		<seasar.version>2.4.46</seasar.version>
