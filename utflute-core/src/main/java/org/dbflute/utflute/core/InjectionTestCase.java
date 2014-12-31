@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2014 the original author or authors.
+ * Copyright 2014-2015 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,8 @@ public abstract class InjectionTestCase extends PlainTestCase {
 
     /** The result of bound component for the test case. (NullAllowed: before binding, after destroy) */
     protected BoundResult _xtestCaseBoundResult;
+
+    protected List<BoundResult> _xinjectedBoundResultList; // lazy-loaded
 
     /** The list of mock instance injected to component. (NullAllowed: when no mock) */
     protected List<Object> _xmockInstanceList; // lazy-loaded
@@ -164,8 +166,14 @@ public abstract class InjectionTestCase extends PlainTestCase {
     }
 
     protected void xdestroyTestCaseComponent() {
-        _xtestCaseComponentBinder.releaseBoundComponent(this, _xtestCaseBoundResult);
+        _xtestCaseComponentBinder.releaseBoundComponent(_xtestCaseBoundResult);
         _xtestCaseBoundResult = null;
+        if (_xinjectedBoundResultList != null) {
+            for (BoundResult injectedBoundResult : _xinjectedBoundResultList) {
+                _xtestCaseComponentBinder.releaseBoundComponent(injectedBoundResult);
+            }
+        }
+        _xinjectedBoundResultList = null;
     }
 
     protected void xdestroyTestCaseContainer() {
@@ -293,7 +301,12 @@ public abstract class InjectionTestCase extends PlainTestCase {
      */
     protected BoundResult inject(Object bean) { // user method
         final ComponentBinder binder = createOuterComponentBinder(bean);
-        return xdoInject(bean, binder);
+        final BoundResult boundResult = xdoInject(bean, binder);
+        if (_xinjectedBoundResultList == null) {
+            _xinjectedBoundResultList = new ArrayList<BoundResult>(2);
+        }
+        _xinjectedBoundResultList.add(boundResult);
+        return boundResult;
     }
 
     protected ComponentBinder createOuterComponentBinder(Object bean) { // customize point #extPoint
