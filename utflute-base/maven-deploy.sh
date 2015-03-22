@@ -28,3 +28,10 @@ cd ../../utflute-guice/utflute-guice
 
 cd ../utflute-guice-web
 . maven-deploy.sh $1
+
+# Lasta
+cd ../../utflute-lasta/utflute-lasta-di
+. maven-deploy.sh $1
+
+cd ../utflute-lastaflute
+. maven-deploy.sh $1
