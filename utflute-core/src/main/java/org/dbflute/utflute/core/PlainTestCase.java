@@ -500,16 +500,21 @@ public abstract class PlainTestCase extends TestCase {
      */
     protected void assertException(Class<?> exceptionType, ExceptionExaminer noArgInLambda) {
         assertNotNull(exceptionType);
+        boolean noThrow = false;
         try {
             noArgInLambda.examine();
-            fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
+            noThrow = true;
         } catch (Throwable cause) {
             final Class<? extends Throwable> causeClass = cause.getClass();
-            if (!exceptionType.isAssignableFrom(causeClass)) {
-                fail("expected: " + exceptionType.getSimpleName() + " but: " + causeClass.getSimpleName());
-            }
             final String msg = cause.getMessage();
-            log("expected: " + (msg != null && msg.contains(ln()) ? ln() : "") + msg);
+            final String exp = (msg != null && msg.contains(ln()) ? ln() : "") + msg;
+            if (!exceptionType.isAssignableFrom(causeClass)) {
+                fail("expected: " + exceptionType.getSimpleName() + " but: " + causeClass.getSimpleName() + " => " + exp);
+            }
+            log("expected: " + exp);
+        }
+        if (noThrow) {
+            fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
         }
     }
 
