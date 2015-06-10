@@ -41,24 +41,25 @@ public abstract class InjectionTestCase extends PlainTestCase {
     //                                    Transaction Object
     //                                    ------------------
     /** The object that has transaction resources for test case. */
-    protected TransactionResource _xtestCaseTransactionResource;
+    private TransactionResource _xtestCaseTransactionResource;
 
     // -----------------------------------------------------
     //                                     Component Binding
     //                                     -----------------
     /** The binder of component for the test case. (NotNull) */
-    protected final ComponentBinder _xtestCaseComponentBinder = createTestCaseComponentBinder();
+    private final ComponentBinder _xtestCaseComponentBinder = createTestCaseComponentBinder();
 
     /** The result of bound component for the test case. (NullAllowed: before binding, after destroy) */
-    protected BoundResult _xtestCaseBoundResult;
+    private BoundResult _xtestCaseBoundResult;
 
-    protected List<BoundResult> _xinjectedBoundResultList; // lazy-loaded
+    /** The list of injected bound result. (NullAllowed: before binding, after destroy) */
+    private List<BoundResult> _xinjectedBoundResultList; // lazy-loaded
 
     /** The list of mock instance injected to component. (NullAllowed: when no mock) */
-    protected List<Object> _xmockInstanceList; // lazy-loaded
+    private List<Object> _xmockInstanceList; // lazy-loaded
 
     /** The list of non-binding type NOT injected to component. (NullAllowed: when no mock) */
-    protected List<Class<?>> _xnonBindingTypeList; // lazy-loaded
+    private List<Class<?>> _xnonBindingTypeList; // lazy-loaded
 
     // ===================================================================================
     //                                                                            Settings
@@ -376,4 +377,51 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * @return The determination, true or false.
      */
     protected abstract boolean hasComponent(String name); // user method
+
+    // ===================================================================================
+    //                                                                            Accessor
+    //                                                                            ========
+    protected TransactionResource xgetTestCaseTransactionResource() {
+        return _xtestCaseTransactionResource;
+    }
+
+    protected void xsetTestCaseTransactionResource(TransactionResource testCaseTransactionResource) {
+        _xtestCaseTransactionResource = testCaseTransactionResource;
+    }
+
+    protected ComponentBinder xgetTestCaseComponentBinder() {
+        return _xtestCaseComponentBinder;
+    }
+
+    protected BoundResult xgetTestCaseBoundResult() {
+        return _xtestCaseBoundResult;
+    }
+
+    protected void xsetTestCaseBoundResult(BoundResult testCaseBoundResult) {
+        _xtestCaseBoundResult = testCaseBoundResult;
+    }
+
+    protected List<BoundResult> xgetInjectedBoundResultList() {
+        return _xinjectedBoundResultList;
+    }
+
+    protected void xsetInjectedBoundResultList(List<BoundResult> injectedBoundResultList) {
+        _xinjectedBoundResultList = injectedBoundResultList;
+    }
+
+    protected List<Object> xgetMockInstanceList() {
+        return _xmockInstanceList;
+    }
+
+    protected void xsetMockInstanceList(List<Object> mockInstanceList) {
+        _xmockInstanceList = mockInstanceList;
+    }
+
+    protected List<Class<?>> xgetNonBindingTypeList() {
+        return _xnonBindingTypeList;
+    }
+
+    protected void xsetNonBindingTypeList(List<Class<?>> nonBindingTypeList) {
+        _xnonBindingTypeList = nonBindingTypeList;
+    }
 }
