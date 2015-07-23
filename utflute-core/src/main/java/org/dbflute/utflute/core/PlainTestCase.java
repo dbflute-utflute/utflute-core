@@ -73,7 +73,7 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                          Definition
     //                                                                          ==========
     /** The logger instance for sub class. (NotNull) */
-    protected final Logger _xlogger = LoggerFactory.getLogger(getClass());
+    private final Logger _xlogger = LoggerFactory.getLogger(getClass());
     // UTFlute wants to use logger for caller output
     // but should remove the dependency to Log4j
     // (logging through commons-logging gives us fixed caller...)
@@ -83,10 +83,10 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                           Attribute
     //                                                                           =========
     /** The manager of mark here. (NullAllowed: lazy-loaded) */
-    protected MarkHereManager _xmarkHereManager;
+    private MarkHereManager _xmarkHereManager;
 
     /** The reserved title for logging test case beginning. (NullAllowed: before preparation or already showed) */
-    protected String _xreservedTitle;
+    private String _xreservedTitle;
 
     // ===================================================================================
     //                                                                            Settings
@@ -500,16 +500,21 @@ public abstract class PlainTestCase extends TestCase {
      */
     protected void assertException(Class<?> exceptionType, ExceptionExaminer noArgInLambda) {
         assertNotNull(exceptionType);
+        boolean noThrow = false;
         try {
             noArgInLambda.examine();
-            fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
+            noThrow = true;
         } catch (Throwable cause) {
             final Class<? extends Throwable> causeClass = cause.getClass();
-            if (!exceptionType.isAssignableFrom(causeClass)) {
-                fail("expected: " + exceptionType.getSimpleName() + " but: " + causeClass.getSimpleName());
-            }
             final String msg = cause.getMessage();
-            log("expected: " + (msg != null && msg.contains(ln()) ? ln() : "") + msg);
+            final String exp = (msg != null && msg.contains(ln()) ? ln() : "") + msg;
+            if (!exceptionType.isAssignableFrom(causeClass)) {
+                fail("expected: " + exceptionType.getSimpleName() + " but: " + causeClass.getSimpleName() + " => " + exp);
+            }
+            log("expected: " + exp);
+        }
+        if (noThrow) {
+            fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
         }
     }
 
@@ -1178,5 +1183,20 @@ public abstract class PlainTestCase extends TestCase {
 
     protected String xgetCaseDisp() {
         return getClass().getSimpleName() + "." + getName() + "()";
+    }
+
+    // ===================================================================================
+    //                                                                            Accessor
+    //                                                                            ========
+    protected Logger xgetLogger() {
+        return _xlogger;
+    }
+
+    protected String xgetReservedTitle() {
+        return _xreservedTitle;
+    }
+
+    protected void xsetReservedTitle(String reservedTitle) {
+        _xreservedTitle = reservedTitle;
     }
 }
