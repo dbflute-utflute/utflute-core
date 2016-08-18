@@ -216,7 +216,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         log("foo", "bar");
         log("foo", "bar", "qux");
         log("foo", "bar", "qux", new RuntimeException("corge"));
-        log("foo", currentDate(), currentTimestamp());
+        log("foo", currentUtilDate(), currentTimestamp());
     }
 
     // ===================================================================================

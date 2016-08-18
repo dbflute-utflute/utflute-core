@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.sql.DataSource;
@@ -498,7 +500,7 @@ public abstract class PlainTestCase extends TestCase {
      * @param exceptionType The expected exception type. (NotNull) 
      * @param noArgInLambda The callback for calling methods that should throw the exception. (NotNull)
      */
-    protected void assertException(Class<?> exceptionType, ExceptionExaminer noArgInLambda) {
+    protected void assertException(Class<? extends Throwable> exceptionType, ExceptionExaminer noArgInLambda) {
         assertNotNull(exceptionType);
         boolean noThrow = false;
         try {
@@ -730,18 +732,26 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Date Helper
     //                                                                         ===========
     protected LocalDate currentLocalDate() {
-        return toLocalDate(currentDate());
+        return toLocalDate(currentUtilDate());
     }
 
     protected LocalDateTime currentLocalDateTime() {
-        return toLocalDateTime(currentDate());
+        return toLocalDateTime(currentUtilDate());
     }
 
     protected LocalTime currentLocalTime() {
-        return toLocalTime(currentDate());
+        return toLocalTime(currentUtilDate());
     }
 
+    /**
+     * @return The current utility date. (NotNull)
+     * @deprecated use currentUtilDate()
+     */
     protected Date currentDate() {
+        return currentUtilDate();
+    }
+
+    protected Date currentUtilDate() {
         return DBFluteSystem.currentDate();
     }
 
@@ -761,7 +771,16 @@ public abstract class PlainTestCase extends TestCase {
         return DfTypeUtil.toLocalTime(obj, getUnitTimeZone());
     }
 
+    /**
+     * @param obj The source of date. (NullAllowed)
+     * @return The utility date. (NotNull)
+     * @deprecated use currentUtilDate()
+     */
     protected Date toDate(Object obj) {
+        return toUtilDate(obj);
+    }
+
+    protected Date toUtilDate(Object obj) {
         return DfTypeUtil.toDate(obj);
     }
 
@@ -1155,11 +1174,27 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     /**
-     * Get the directory object of the (application or Eclipse) project. (default: target/test-classes/../../)
+     * Get the directory object of the (application or Eclipse) project.
      * @return The file object of the directory. (NotNull)
      */
     protected File getProjectDir() { // customize point #extPoint
-        return getTestCaseBuildDir().getParentFile().getParentFile(); // target/test-classes/../../
+        final Set<String> markSet = defineProjectDirMarkSet();
+        for (File dir = getTestCaseBuildDir(); dir != null; dir = dir.getParentFile()) {
+            if (dir.isDirectory()) {
+                if (Arrays.stream(dir.listFiles()).anyMatch(file -> markSet.contains(file.getName()))) {
+                    return dir;
+                }
+            }
+        }
+        throw new IllegalStateException("Not found the project dir marks: " + markSet);
+    }
+
+    /**
+     * Define the marks of the (application or Eclipse) project.
+     * @return the set of mark file name for the project. (NotNull)
+     */
+    protected Set<String> defineProjectDirMarkSet() {
+        return DfCollectionUtil.newHashSet("build.xml", "pom.xml", "build.gradle", ".project", ".idea");
     }
 
     /**
