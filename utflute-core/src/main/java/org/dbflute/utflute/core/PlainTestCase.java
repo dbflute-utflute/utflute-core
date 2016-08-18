@@ -500,7 +500,7 @@ public abstract class PlainTestCase extends TestCase {
      * @param exceptionType The expected exception type. (NotNull) 
      * @param noArgInLambda The callback for calling methods that should throw the exception. (NotNull)
      */
-    protected void assertException(Class<?> exceptionType, ExceptionExaminer noArgInLambda) {
+    protected void assertException(Class<? extends Throwable> exceptionType, ExceptionExaminer noArgInLambda) {
         assertNotNull(exceptionType);
         boolean noThrow = false;
         try {
@@ -732,18 +732,26 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                         Date Helper
     //                                                                         ===========
     protected LocalDate currentLocalDate() {
-        return toLocalDate(currentDate());
+        return toLocalDate(currentUtilDate());
     }
 
     protected LocalDateTime currentLocalDateTime() {
-        return toLocalDateTime(currentDate());
+        return toLocalDateTime(currentUtilDate());
     }
 
     protected LocalTime currentLocalTime() {
-        return toLocalTime(currentDate());
+        return toLocalTime(currentUtilDate());
     }
 
+    /**
+     * @return The current utility date. (NotNull)
+     * @deprecated use currentUtilDate()
+     */
     protected Date currentDate() {
+        return currentUtilDate();
+    }
+
+    protected Date currentUtilDate() {
         return DBFluteSystem.currentDate();
     }
 
@@ -763,7 +771,16 @@ public abstract class PlainTestCase extends TestCase {
         return DfTypeUtil.toLocalTime(obj, getUnitTimeZone());
     }
 
+    /**
+     * @param obj The source of date. (NullAllowed)
+     * @return The utility date. (NotNull)
+     * @deprecated use currentUtilDate()
+     */
     protected Date toDate(Object obj) {
+        return toUtilDate(obj);
+    }
+
+    protected Date toUtilDate(Object obj) {
         return DfTypeUtil.toDate(obj);
     }
 
