@@ -15,6 +15,8 @@
  */
 package org.dbflute.utflute.core;
 
+import java.time.LocalDateTime;
+
 import junit.framework.AssertionFailedError;
 
 /**
@@ -223,4 +225,12 @@ public class PlainTestCaseTest extends PlainTestCase {
     //                                                                         Cannon-ball
     //                                                                         ===========
     // at CannonballTest
+
+    // ===================================================================================
+    //                                                                             DBFlute
+    //                                                                             =======
+    public void test_switchCurrentDate() {
+        switchCurrentDate(() -> LocalDateTime.of(2016, 10, 27, 3, 0));
+        log(currentLocalDate(), currentLocalDateTime(), currentUtilDate(), currentTimestamp());
+    }
 }
