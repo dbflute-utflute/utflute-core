@@ -34,18 +34,24 @@ import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
 import org.dbflute.cbean.result.PagingResultBean;
 import org.dbflute.hook.AccessContext;
+import org.dbflute.hook.CallbackContext;
+import org.dbflute.hook.SqlResultHandler;
+import org.dbflute.hook.SqlResultInfo;
 import org.dbflute.system.DBFluteSystem;
+import org.dbflute.system.provider.DfCurrentDateProvider;
 import org.dbflute.utflute.core.beanorder.BeanOrderValidator;
 import org.dbflute.utflute.core.beanorder.ExpectedBeanOrderBy;
 import org.dbflute.utflute.core.cannonball.CannonballDirector;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
 import org.dbflute.utflute.core.cannonball.CannonballStaff;
+import org.dbflute.utflute.core.dbflute.GatheredExecutedSqlHolder;
 import org.dbflute.utflute.core.exception.ExceptionExaminer;
 import org.dbflute.utflute.core.filesystem.FileLineHandler;
 import org.dbflute.utflute.core.filesystem.FilesystemPlayer;
@@ -93,6 +99,12 @@ public abstract class PlainTestCase extends TestCase {
     /** The reserved title for logging test case beginning. (NullAllowed: before preparation or already showed) */
     private String _xreservedTitle;
 
+    /** Does it use gatheredExecutedSql in this test case? */
+    private boolean _xuseGatheredExecutedSql;
+
+    /** Does it use switchedCurrentDate in this test case? */
+    private boolean _xuseSwitchedCurrentDate;
+
     // ===================================================================================
     //                                                                            Settings
     //                                                                            ========
@@ -108,43 +120,17 @@ public abstract class PlainTestCase extends TestCase {
         _xreservedTitle = "<<< " + xgetCaseDisp() + " >>>";
     }
 
+    protected String xgetCaseDisp() {
+        return getClass().getSimpleName() + "." + getName() + "()";
+    }
+
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
         xclearAccessContext();
+        xclearGatheredExecutedSql();
+        xclearSwitchedCurrentDate();
         xclearMark();
-    }
-
-    protected void xprepareAccessContext() {
-        final AccessContext context = new AccessContext();
-        context.setAccessLocalDate(currentLocalDate());
-        context.setAccessLocalDateTime(currentLocalDateTime());
-        context.setAccessTimestamp(currentTimestamp());
-        context.setAccessDate(currentDate());
-        context.setAccessUser(Thread.currentThread().getName());
-        context.setAccessProcess(getClass().getSimpleName());
-        context.setAccessModule(getClass().getSimpleName());
-        AccessContext.setAccessContextOnThread(context);
-    }
-
-    /**
-     * Get the access context for common column auto setup of DBFlute.
-     * @return The instance of access context on the thread. (basically NotNull)
-     */
-    protected AccessContext getAccessContext() { // user method
-        return AccessContext.getAccessContextOnThread();
-    }
-
-    protected void xclearAccessContext() {
-        AccessContext.clearAccessContextOnThread();
-    }
-
-    protected void xclearMark() {
-        if (xhasMarkHereManager()) {
-            xgetMarkHereManager().checkNonAssertedMark();
-            xgetMarkHereManager().clearMarkMap();
-            xdestroyMarkHereManager();
-        }
     }
 
     // ===================================================================================
@@ -217,7 +203,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "Foo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull) 
+     * @param keyword The keyword string. (NotNull)
      */
     protected void assertContains(String str, String keyword) {
         if (!Srl.contains(str, keyword)) {
@@ -237,7 +223,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "ux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull) 
+     * @param keyword The keyword string. (NotNull)
      */
     protected void assertContainsIgnoreCase(String str, String keyword) {
         if (!Srl.containsIgnoreCase(str, keyword)) {
@@ -256,7 +242,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "fx", "oo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsAll(String str, String... keywords) {
         if (!Srl.containsAll(str, keywords)) {
@@ -275,7 +261,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "fx", "oo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsAllIgnoreCase(String str, String... keywords) {
         if (!Srl.containsAllIgnoreCase(str, keywords)) {
@@ -295,7 +281,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "fx", "ux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsAny(String str, String... keywords) {
         if (!Srl.containsAny(str, keywords)) {
@@ -315,7 +301,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "fx", "ux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsAnyIgnoreCase(String str, String... keywords) {
         if (!Srl.containsAnyIgnoreCase(str, keywords)) {
@@ -335,7 +321,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertNotContains(str, "foo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull) 
+     * @param keyword The keyword string. (NotNull)
      */
     protected void assertNotContains(String str, String keyword) {
         if (Srl.contains(str, keyword)) {
@@ -355,7 +341,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContains(str, "foo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull) 
+     * @param keyword The keyword string. (NotNull)
      */
     protected void assertNotContainsIgnoreCase(String str, String keyword) {
         if (Srl.containsIgnoreCase(str, keyword)) {
@@ -378,7 +364,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContainsKeyword(strList, "ux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param strList The list of string. (NotNull)
-     * @param keyword The keyword string. (NotNull) 
+     * @param keyword The keyword string. (NotNull)
      */
     protected void assertContainsKeyword(Collection<String> strList, String keyword) {
         if (!Srl.containsKeyword(strList, keyword)) {
@@ -395,7 +381,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContainsKeyword(strList, "fo", "ux", "foo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsKeywordAll(Collection<String> strList, String... keywords) {
         if (!Srl.containsKeywordAll(strList, keywords)) {
@@ -412,7 +398,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContainsKeyword(strList, "fo", "ux", "foo"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsKeywordAllIgnoreCase(Collection<String> strList, String... keywords) {
         if (!Srl.containsKeywordAllIgnoreCase(strList, keywords)) {
@@ -429,7 +415,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContainsKeyword(strList, "Fo", "ux", "qux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsKeywordAny(Collection<String> strList, String... keywords) {
         if (!Srl.containsKeywordAny(strList, keywords)) {
@@ -447,7 +433,7 @@ public abstract class PlainTestCase extends TestCase {
      * assertContainsKeyword(strList, "po", "ux", "qux"); <span style="color: #3F7E5E">// false</span>
      * </pre>
      * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull) 
+     * @param keywords The array of keyword string. (NotNull)
      */
     protected void assertContainsKeywordAnyIgnoreCase(Collection<String> strList, String... keywords) {
         if (!Srl.containsKeywordAnyIgnoreCase(strList, keywords)) {
@@ -500,7 +486,7 @@ public abstract class PlainTestCase extends TestCase {
      * String str = null;
      * assertException(NullPointerException.class, () <span style="color: #90226C; font-weight: bold"><span style="font-size: 120%">-</span>&gt;</span> str.toString());
      * </pre>
-     * @param exceptionType The expected exception type. (NotNull) 
+     * @param exceptionType The expected exception type. (NotNull)
      * @param noArgInLambda The callback for calling methods that should throw the exception. (NotNull)
      */
     protected void assertException(Class<? extends Throwable> exceptionType, ExceptionExaminer noArgInLambda) {
@@ -607,6 +593,14 @@ public abstract class PlainTestCase extends TestCase {
         _xmarkHereManager = null;
     }
 
+    protected void xclearMark() {
+        if (xhasMarkHereManager()) {
+            xgetMarkHereManager().checkNonAssertedMark();
+            xgetMarkHereManager().clearMarkMap();
+            xdestroyMarkHereManager();
+        }
+    }
+
     // ===================================================================================
     //                                                                      Logging Helper
     //                                                                      ==============
@@ -617,7 +611,7 @@ public abstract class PlainTestCase extends TestCase {
      * Member member = ...;
      * <span style="color: #FD4747">log</span>(member.getMemberName(), member.getBirthdate());
      * <span style="color: #3F7E5E">// -&gt; Stojkovic, 1965/03/03</span>
-     * 
+     *
      * Exception e = ...;
      * <span style="color: #FD4747">log</span>(member.getMemberName(), member.getBirthdate(), e);
      * <span style="color: #3F7E5E">// -&gt; Stojkovic, 1965/03/03</span>
@@ -881,6 +875,17 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     // ===================================================================================
+    //                                                                       System Helper
+    //                                                                       =============
+    /**
+     * Get the line separator. (LF fixedly)
+     * @return The string of the line separator. (NotNull)
+     */
+    protected String ln() {
+        return "\n";
+    }
+
+    // ===================================================================================
     //                                                                         Transaction
     //                                                                         ===========
     // reserved interfaces
@@ -912,7 +917,7 @@ public abstract class PlainTestCase extends TestCase {
 
     /**
      * Perform the process in new transaction (even if the transaction has already been begun). <br>
-     * You can select commit or roll-back by returned value of the callback method. 
+     * You can select commit or roll-back by returned value of the callback method.
      * <pre>
      * performNewTransaction(new TransactionPerformer() {
      *     public boolean perform() { <span style="color: #3F7E5E">// transaction scope</span>
@@ -1231,18 +1236,80 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     // ===================================================================================
-    //                                                                       System Helper
-    //                                                                       =============
-    /**
-     * Get the line separator. (LF fixedly)
-     * @return The string of the line separator. (NotNull)
-     */
-    protected String ln() {
-        return "\n";
+    //                                                                             DBFlute
+    //                                                                             =======
+    // -----------------------------------------------------
+    //                                         AccessContext
+    //                                         -------------
+    protected void xprepareAccessContext() {
+        final AccessContext context = new AccessContext();
+        context.setAccessLocalDate(currentLocalDate());
+        context.setAccessLocalDateTime(currentLocalDateTime());
+        context.setAccessTimestamp(currentTimestamp());
+        context.setAccessDate(currentUtilDate());
+        context.setAccessUser(Thread.currentThread().getName());
+        context.setAccessProcess(getClass().getSimpleName());
+        context.setAccessModule(getClass().getSimpleName());
+        AccessContext.setAccessContextOnThread(context);
     }
 
-    protected String xgetCaseDisp() {
-        return getClass().getSimpleName() + "." + getName() + "()";
+    /**
+     * Get the access context for common column auto setup of DBFlute.
+     * @return The instance of access context on the thread. (basically NotNull)
+     */
+    protected AccessContext getAccessContext() { // user method
+        return AccessContext.getAccessContextOnThread();
+    }
+
+    protected void xclearAccessContext() {
+        AccessContext.clearAccessContextOnThread();
+    }
+
+    // -----------------------------------------------------
+    //                                       CallbackContext
+    //                                       ---------------
+    protected GatheredExecutedSqlHolder gatherExecutedSql() {
+        _xuseGatheredExecutedSql = true;
+        final GatheredExecutedSqlHolder holder = new GatheredExecutedSqlHolder();
+        CallbackContext.setSqlResultHandlerOnThread(new SqlResultHandler() {
+            public void handle(SqlResultInfo info) {
+                holder.addSqlResultInfo(info);
+            }
+        });
+        return holder;
+    }
+
+    protected void xclearGatheredExecutedSql() {
+        if (_xuseGatheredExecutedSql) {
+            CallbackContext.clearSqlResultHandlerOnThread();
+        }
+    }
+
+    // -----------------------------------------------------
+    //                                         DBFluteSystem
+    //                                         -------------
+    protected void switchCurrentDate(Supplier<LocalDateTime> dateTimeSupplier) {
+        assertNotNull(dateTimeSupplier);
+        if (DBFluteSystem.hasCurrentDateProvider()) {
+            String msg = "The current date provider already exists, cannot use new provider: " + dateTimeSupplier;
+            throw new IllegalStateException(msg);
+        }
+        _xuseSwitchedCurrentDate = true;
+        DBFluteSystem.unlock();
+        DBFluteSystem.setCurrentDateProvider(new DfCurrentDateProvider() {
+            public long currentTimeMillis() {
+                final LocalDateTime currentDateTime = dateTimeSupplier.get();
+                assertNotNull(currentDateTime);
+                return DfTypeUtil.toDate(currentDateTime).getTime();
+            }
+        });
+    }
+
+    protected void xclearSwitchedCurrentDate() {
+        if (_xuseSwitchedCurrentDate) {
+            DBFluteSystem.unlock();
+            DBFluteSystem.setCurrentDateProvider(null);
+        }
     }
 
     // ===================================================================================
