@@ -33,18 +33,20 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.function.Consumer;
 
 import javax.sql.DataSource;
-
-import junit.framework.TestCase;
 
 import org.dbflute.cbean.result.PagingResultBean;
 import org.dbflute.hook.AccessContext;
 import org.dbflute.system.DBFluteSystem;
+import org.dbflute.utflute.core.beanorder.BeanOrderValidator;
+import org.dbflute.utflute.core.beanorder.ExpectedBeanOrderBy;
 import org.dbflute.utflute.core.cannonball.CannonballDirector;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
 import org.dbflute.utflute.core.cannonball.CannonballStaff;
+import org.dbflute.utflute.core.exception.ExceptionExaminer;
 import org.dbflute.utflute.core.filesystem.FileLineHandler;
 import org.dbflute.utflute.core.filesystem.FilesystemPlayer;
 import org.dbflute.utflute.core.markhere.MarkHereManager;
@@ -54,7 +56,6 @@ import org.dbflute.utflute.core.policestory.jspfile.PoliceStoryJspFileHandler;
 import org.dbflute.utflute.core.policestory.miscfile.PoliceStoryMiscFileHandler;
 import org.dbflute.utflute.core.policestory.pjresource.PoliceStoryProjectResourceHandler;
 import org.dbflute.utflute.core.policestory.webresource.PoliceStoryWebResourceHandler;
-import org.dbflute.utflute.core.smallhelper.ExceptionExaminer;
 import org.dbflute.utflute.core.transaction.TransactionPerformFailureException;
 import org.dbflute.utflute.core.transaction.TransactionPerformer;
 import org.dbflute.utflute.core.transaction.TransactionResource;
@@ -64,6 +65,8 @@ import org.dbflute.util.DfTypeUtil;
 import org.dbflute.util.Srl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import junit.framework.TestCase;
 
 /**
  * @author jflute
@@ -518,6 +521,28 @@ public abstract class PlainTestCase extends TestCase {
         if (noThrow) {
             fail("expected: " + exceptionType.getSimpleName() + " but: no exception");
         }
+    }
+
+    // -----------------------------------------------------
+    //                                                 Order
+    //                                                 -----
+    /**
+     * Assert that the bean list is ordered as expected specification.
+     * <pre>
+     * assertOrder(memberList, orderBy -&gt; {
+     *     orderBy.desc(mb -&gt; mb.getBirthdate()).asc(mb -&gt; mb.getMemberId());
+     * });
+     * </pre>
+     * @param beanList The list of bean. (NotNull)
+     * @param oneArgLambda The callback for order specification. (NotNull)
+     */
+    protected <BEAN> void assertOrder(List<BEAN> beanList, Consumer<ExpectedBeanOrderBy<BEAN>> oneArgLambda) {
+        assertNotNull(beanList);
+        assertNotNull(oneArgLambda);
+        assertHasAnyElement(beanList);
+        new BeanOrderValidator<BEAN>(oneArgLambda).validateOrder(beanList, vio -> {
+            fail("[Order Failure] " + vio); // for now
+        });
     }
 
     // -----------------------------------------------------
