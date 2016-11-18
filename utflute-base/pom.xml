@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.6.1B</version>
+	<version>0.6.2</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
@@ -14,7 +14,7 @@
 
 	<properties>
 		<dbflute.version>1.1.1</dbflute.version>
-		<utflute.core.version>0.6.1B</utflute.core.version>
+		<utflute.core.version>0.6.2</utflute.core.version>
 		<h2.jdbc.version>1.4.192</h2.jdbc.version>
 	</properties>
 
@@ -252,13 +252,6 @@
 				<groupId>log4j</groupId>
 				<artifactId>log4j</artifactId>
 				<version>1.2.14</version>
-			</dependency>
-
-			<!-- transaction -->
-			<dependency>
-				<groupId>com.atomikos</groupId>
-				<artifactId>transactions</artifactId>
-				<version>3.3.4</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
