@@ -43,6 +43,9 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                       Assert Helper
     //                                                                       =============
+    // -----------------------------------------------------
+    //                                              Contains
+    //                                              --------
     public void test_assertContains() throws Exception {
         assertContains("foo", "fo");
         try {
@@ -94,6 +97,9 @@ public class PlainTestCaseTest extends PlainTestCase {
         }
     }
 
+    // -----------------------------------------------------
+    //                                                  Has
+    //                                                 -----
     public void test_assertHas() throws Exception {
         assertHasAnyElement(newArrayList("foo"));
         assertHasAnyElement(newArrayList("foo", "bar"));
@@ -144,11 +150,19 @@ public class PlainTestCaseTest extends PlainTestCase {
         }
     }
 
+    // -----------------------------------------------------
+    //                                             Exception
+    //                                             ---------
     public void test_exception_basic() throws Exception {
         String str = null;
         assertException(NullPointerException.class, () -> str.toString());
         assertException(IllegalStateException.class, () -> {
             throw new IllegalStateException("a\nb\nc");
+        });
+        assertException(IllegalStateException.class, () -> {
+            throw new IllegalStateException("sealandpiari");
+        }).handle(cause -> {
+            assertContains(cause.getMessage(), "land");
         });
     }
 
