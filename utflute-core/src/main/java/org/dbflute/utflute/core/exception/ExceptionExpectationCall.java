@@ -13,17 +13,18 @@
  * either express or implied. See the License for the specific language
  * governing permissions and limitations under the License.
  */
-package org.dbflute.utflute.core.transaction;
+package org.dbflute.utflute.core.exception;
 
 /**
+ * @param <CAUSE> The type of cause exception.
  * @author jflute
- * @since 0.3.2 (2013/07/05 Friday)
+ * @since 1.1.2 (2017/02/11 Saturday)
  */
-public class TransactionPerformFailureException extends RuntimeException {
+@FunctionalInterface
+public interface ExceptionExpectationCall<CAUSE extends Throwable> {
 
-    private static final long serialVersionUID = 1L;
-
-    public TransactionPerformFailureException(String msg, Throwable e) {
-        super(msg, e);
-    }
+    /**
+     * @param cause The expected cause. (NotNull)
+     */
+    void callback(CAUSE cause);
 }
