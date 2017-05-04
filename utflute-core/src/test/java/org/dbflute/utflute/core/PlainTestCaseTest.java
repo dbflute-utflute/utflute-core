@@ -72,6 +72,16 @@ public class PlainTestCaseTest extends PlainTestCase {
         }
     }
 
+    public void test_assertContainsAll() throws Exception {
+        assertContainsAll("foo", "fo", "oo");
+        try {
+            assertContainsAll("foo", "fo", "sea");
+            fail();
+        } catch (AssertionFailedError e) {
+            log(e.getMessage());
+        }
+    }
+
     public void test_assertContainsKeyword() throws Exception {
         assertContainsKeyword(newArrayList("foo", "bar", "qux"), "ar");
         try {
