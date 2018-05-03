@@ -236,13 +236,30 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                      Logging Helper
     //                                                                      ==============
-    public void test_log() throws Exception {
+    public void test_log_basic() throws Exception {
         // check your eyes
         log("foo");
         log("foo", "bar");
         log("foo", "bar", "qux");
         log("foo", "bar", "qux", new RuntimeException("corge"));
         log("foo", currentUtilDate(), currentTimestamp());
+    }
+
+    public void test_log_placeholder() throws Exception {
+        // check your eyes
+        log("sea: {}, land: {}"); // sea: {}, land: {}
+        log("sea: {}, land: {}", "mystic"); // sea: mystic, land: {}
+        log("sea: {}, land: {}", "mystic", "oneman"); // sea: mystic, land: oneman
+        log("sea: {}, land: {}, piari: {}", "mystic", "oneman"); // sea: mystic, land: oneman, piari: {}
+        log("sea: {}, land: {}, piari: {}", "mystic", "oneman", "plaza"); // sea: mystic, land: oneman, piari: plaza
+        log("sea: {}, land: {}", "mystic", "oneman", "plaza"); // sea: mystic, land: oneman, plaza
+        log("sea: {{}", "mystic"); // sea: {mystic
+        log("sea: {}}", "mystic"); // sea: mystic}
+        log("sea: {{}}", "mystic"); // sea: {mystic}
+        log("sea: {{}}", "mys{}tic"); // sea: {mys{}tic}
+        log("sea: {}", "\\"); // expects no exception, sea: \
+        log("sea: {}", "$"); // expects no exception, sea: $
+        log("sea: {}", "\\$"); // expects no exception, sea: \$
     }
 
     // ===================================================================================
