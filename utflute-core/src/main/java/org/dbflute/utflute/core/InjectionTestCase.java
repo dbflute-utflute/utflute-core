@@ -27,6 +27,7 @@ import org.dbflute.utflute.core.binding.ComponentBinder;
 import org.dbflute.utflute.core.binding.ComponentProvider;
 import org.dbflute.utflute.core.transaction.TransactionFailureException;
 import org.dbflute.utflute.core.transaction.TransactionResource;
+import org.junit.jupiter.api.Assertions;
 
 /**
  * @author jflute
@@ -409,7 +410,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
 
     protected void xadjustOuterComponentBinder(Object bean, ComponentBinder binder) {
         // adjust mock components
-        final List<Object> mockInstanceList = newArrayList();
+        final List<Object> mockInstanceList = new ArrayList<>();
         if (_xmockInstanceList != null) {
             mockInstanceList.addAll(_xmockInstanceList);
         }
@@ -421,7 +422,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
         }
 
         // adjust no binding components
-        final List<Class<?>> nonBindingTypeList = newArrayList();
+        final List<Class<?>> nonBindingTypeList = new ArrayList<>();
         if (_xnonBindingTypeList != null) {
             nonBindingTypeList.addAll(_xnonBindingTypeList);
         }
@@ -468,6 +469,13 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * @return The determination, true or false.
      */
     protected abstract boolean hasComponent(String name); // user method
+
+    // ===================================================================================
+    //                                                                          Compatible
+    //                                                                          ==========
+    private void assertNotNull(Object actual) { // for compatible
+        Assertions.assertNotNull(actual);
+    }
 
     // ===================================================================================
     //                                                                            Accessor

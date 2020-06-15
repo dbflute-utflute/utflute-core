@@ -20,6 +20,9 @@ import java.io.File;
 import org.dbflute.utflute.core.filesystem.FileLineHandler;
 import org.dbflute.utflute.core.policestory.javaclass.PoliceStoryJavaClassHandler;
 import org.dbflute.utflute.core.policestory.jspfile.PoliceStoryJspFileHandler;
+import org.dbflute.util.Srl;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author jflute
@@ -30,6 +33,7 @@ public class PoliceStoryTest extends PlainTestCase {
     // ===================================================================================
     //                                                                               Basic
     //                                                                               =====
+    @Test
     public void test_policeStoryOfJavaClassChase_copyright() throws Exception {
         policeStoryOfJavaClassChase(new PoliceStoryJavaClassHandler() {
             public void handle(File srcFile, Class<?> clazz) {
@@ -48,6 +52,7 @@ public class PoliceStoryTest extends PlainTestCase {
         assertMarked("called");
     }
 
+    @Test
     public void test_policeStoryOfJspFileChase_notExists() throws Exception {
         try {
             policeStoryOfJspFileChase(new PoliceStoryJspFileHandler() {
@@ -59,5 +64,27 @@ public class PoliceStoryTest extends PlainTestCase {
         } catch (IllegalStateException e) {
             log(e.getMessage());
         }
+    }
+
+    // ===================================================================================
+    //                                                                          Compatible
+    //                                                                          ==========
+    private void assertContains(String str, String keyword) {
+        if (!Srl.contains(str, keyword)) {
+            log("Asserted string: " + str); // might be large so show at log
+            fail("the string should have the keyword but not found: " + keyword);
+        }
+    }
+
+    private void fail() { // for compatible
+        Assertions.fail();
+    }
+
+    private void fail(String msg) { // for compatible
+        Assertions.fail(msg);
+    }
+
+    private String ln() { // for compatible
+        return "\n";
     }
 }

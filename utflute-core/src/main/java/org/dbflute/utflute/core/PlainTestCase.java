@@ -17,29 +17,18 @@ package org.dbflute.utflute.core;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import javax.sql.DataSource;
 
-import org.dbflute.cbean.result.PagingResultBean;
 import org.dbflute.hook.AccessContext;
 import org.dbflute.hook.CallbackContext;
 import org.dbflute.hook.SqlResultHandler;
@@ -53,8 +42,6 @@ import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
 import org.dbflute.utflute.core.cannonball.CannonballStaff;
 import org.dbflute.utflute.core.dbflute.GatheredExecutedSqlHolder;
-import org.dbflute.utflute.core.exception.ExceptionExaminer;
-import org.dbflute.utflute.core.exception.ExceptionExpectationAfter;
 import org.dbflute.utflute.core.filesystem.FileLineHandler;
 import org.dbflute.utflute.core.filesystem.FilesystemPlayer;
 import org.dbflute.utflute.core.markhere.MarkHereManager;
@@ -71,16 +58,17 @@ import org.dbflute.util.DfCollectionUtil;
 import org.dbflute.util.DfResourceUtil;
 import org.dbflute.util.DfTypeUtil;
 import org.dbflute.util.Srl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.TestCase;
 
 /**
  * @author jflute
  * @since 0.1.0 (2011/07/24 Sunday)
  */
-public abstract class PlainTestCase extends TestCase {
+public abstract class PlainTestCase {
 
     // ===================================================================================
     //                                                                          Definition
@@ -110,13 +98,12 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                            Settings
     //                                                                            ========
-    @Override
+    @BeforeEach
     protected void setUp() throws Exception {
         xreserveShowTitle();
         if (!xisSuppressTestCaseAccessContext()) {
             initializeTestCaseAccessContext();
         }
-        super.setUp();
     }
 
     protected void xreserveShowTitle() {
@@ -128,27 +115,26 @@ public abstract class PlainTestCase extends TestCase {
         return getClass().getSimpleName() + "." + getName() + "()";
     }
 
-    @Override
-    protected void runTest() throws Throwable {
-        try {
-            super.runTest();
-            postTest();
-        } catch (Throwable e) { // to record in application log
-            log("Failed to finish the test: " + xgetCaseDisp(), e);
-            throw e;
-        }
-    }
+    // TODO jflute how do I do in junit5? (or needed?) (2020/06/15)
+    //    protected void runTest() throws Throwable {
+    //        try {
+    //            super.runTest();
+    //            postTest();
+    //        } catch (Throwable e) { // to record in application log
+    //            log("Failed to finish the test: " + xgetCaseDisp(), e);
+    //            throw e;
+    //        }
+    //    }
+    //
+    //    protected void postTest() {
+    //    }
 
-    protected void postTest() {
-    }
-
-    @Override
+    @AfterEach
     protected void tearDown() throws Exception {
         xclearAccessContextOnThread();
         xclearGatheredExecutedSql();
         xclearSwitchedCurrentDate();
         xclearMark(); // last process to be able to be used in tearDown()
-        super.tearDown();
     }
 
     // -----------------------------------------------------
@@ -167,415 +153,6 @@ public abstract class PlainTestCase extends TestCase {
     //                                                                       Assert Helper
     //                                                                       =============
     // -----------------------------------------------------
-    //                                                Equals
-    //                                                ------
-    // to avoid setting like this:
-    //  assertEquals(Integer.valueOf(3), member.getMemberId())
-    protected void assertEquals(String message, int expected, Integer actual) {
-        assertEquals(message, Integer.valueOf(expected), actual);
-    }
-
-    protected void assertEquals(int expected, Integer actual) {
-        assertEquals(null, Integer.valueOf(expected), actual);
-    }
-
-    // -----------------------------------------------------
-    //                                            True/False
-    //                                            ----------
-    protected void assertTrueAll(boolean... conditions) {
-        int index = 0;
-        for (boolean condition : conditions) {
-            assertTrue("conditions[" + index + "]" + " expected: <true> but was: " + condition, condition);
-            ++index;
-        }
-    }
-
-    protected void assertTrueAny(boolean... conditions) {
-        boolean hasTrue = false;
-        for (boolean condition : conditions) {
-            if (condition) {
-                hasTrue = true;
-                break;
-            }
-        }
-        assertTrue("all conditions were false", hasTrue);
-    }
-
-    protected void assertFalseAll(boolean... conditions) {
-        int index = 0;
-        for (boolean condition : conditions) {
-            assertFalse("conditions[" + index + "]" + " expected: <false> but was: " + condition, condition);
-            ++index;
-        }
-    }
-
-    protected void assertFalseAny(boolean... conditions) {
-        boolean hasFalse = false;
-        for (boolean condition : conditions) {
-            if (!condition) {
-                hasFalse = true;
-                break;
-            }
-        }
-        assertTrue("all conditions were true", hasFalse);
-    }
-
-    // -----------------------------------------------------
-    //                                                String
-    //                                                ------
-    /**
-     * Assert that the string contains the keyword.
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "Foo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull)
-     */
-    protected void assertContains(String str, String keyword) {
-        if (!Srl.contains(str, keyword)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have the keyword but not found: " + keyword);
-        }
-    }
-
-    /**
-     * Assert that the string contains the keyword. (ignore case)
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "Foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "ux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull)
-     */
-    protected void assertContainsIgnoreCase(String str, String keyword) {
-        if (!Srl.containsIgnoreCase(str, keyword)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have the keyword but not found: " + keyword);
-        }
-    }
-
-    /**
-     * Assert that the string contains all keywords.
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo", "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "Foo"); <span style="color: #3F7E5E">// false</span>
-     * assertContains(str, "fx", "oo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsAll(String str, String... keywords) {
-        if (!Srl.containsAll(str, keywords)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have all keywords but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the string contains all keywords. (ignore case)
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo", "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "Foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "fx", "oo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsAllIgnoreCase(String str, String... keywords) {
-        if (!Srl.containsAllIgnoreCase(str, keywords)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have all keywords but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the string contains any keyword.
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo", "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "F", "qux"); <span style="color: #3F7E5E">// false</span>
-     * assertContains(str, "fx", "ux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsAny(String str, String... keywords) {
-        if (!Srl.containsAny(str, keywords)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have any keyword but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the string contains any keyword. (ignore case)
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "fo", "oo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "f", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "F", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "fx", "ux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsAnyIgnoreCase(String str, String... keywords) {
-        if (!Srl.containsAnyIgnoreCase(str, keywords)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should have any keyword but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the string does not contains the keyword.
-     * <pre>
-     * String str = "foo";
-     * assertNotContains(str, "ux"); <span style="color: #3F7E5E">// true</span>
-     * assertNotContains(str, "Foo"); <span style="color: #3F7E5E">// true</span>
-     * assertNotContains(str, "fo"); <span style="color: #3F7E5E">// false</span>
-     * assertNotContains(str, "oo"); <span style="color: #3F7E5E">// false</span>
-     * assertNotContains(str, "foo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull)
-     */
-    protected void assertNotContains(String str, String keyword) {
-        if (Srl.contains(str, keyword)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should not have the keyword but found: " + keyword);
-        }
-    }
-
-    /**
-     * Assert that the string does not contains the keyword. (ignore case)
-     * <pre>
-     * String str = "foo";
-     * assertContains(str, "ux"); <span style="color: #3F7E5E">// true</span>
-     * assertContains(str, "Foo"); <span style="color: #3F7E5E">// false</span>
-     * assertContains(str, "fo"); <span style="color: #3F7E5E">// false</span>
-     * assertContains(str, "oo"); <span style="color: #3F7E5E">// false</span>
-     * assertContains(str, "foo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param str The string to assert. (NotNull)
-     * @param keyword The keyword string. (NotNull)
-     */
-    protected void assertNotContainsIgnoreCase(String str, String keyword) {
-        if (Srl.containsIgnoreCase(str, keyword)) {
-            log("Asserted string: " + str); // might be large so show at log
-            fail("the string should not have the keyword but found: " + keyword);
-        }
-    }
-
-    // -----------------------------------------------------
-    //                                                  List
-    //                                                  ----
-    /**
-     * Assert that the list has an element containing the keyword.
-     * <pre>
-     * List&lt;String&gt; strList = ...; <span style="color: #3F7E5E">// [foo, bar]</span>
-     * assertContainsKeyword(strList, "fo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "ar"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "Foo"); <span style="color: #3F7E5E">// false</span>
-     * assertContainsKeyword(strList, "ux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param strList The list of string. (NotNull)
-     * @param keyword The keyword string. (NotNull)
-     */
-    protected void assertContainsKeyword(Collection<String> strList, String keyword) {
-        if (!Srl.containsKeyword(strList, keyword)) {
-            fail("the list should have the keyword but not found: " + keyword);
-        }
-    }
-
-    /**
-     * Assert that the list has an element containing all keywords.
-     * <pre>
-     * List&lt;String&gt; strList = ...; <span style="color: #3F7E5E">// [foo, bar]</span>
-     * assertContainsKeyword(strList, "fo", "ar", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "fo", "ar", "Foo"); <span style="color: #3F7E5E">// false</span>
-     * assertContainsKeyword(strList, "fo", "ux", "foo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsKeywordAll(Collection<String> strList, String... keywords) {
-        if (!Srl.containsKeywordAll(strList, keywords)) {
-            fail("the list should have all keywords but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the list has an element containing all keywords. (ignore case)
-     * <pre>
-     * List&lt;String&gt; strList = ...; <span style="color: #3F7E5E">// [foo, bar]</span>
-     * assertContainsKeyword(strList, "fo", "ar", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "fO", "ar", "Foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "fo", "ux", "foo"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsKeywordAllIgnoreCase(Collection<String> strList, String... keywords) {
-        if (!Srl.containsKeywordAllIgnoreCase(strList, keywords)) {
-            fail("the list should have all keywords (case ignored) but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the list has an element containing any keyword.
-     * <pre>
-     * List&lt;String&gt; strList = ...; <span style="color: #3F7E5E">// [foo, bar]</span>
-     * assertContainsKeyword(strList, "fo", "ar", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "fo", "ux", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "Fo", "ux", "qux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsKeywordAny(Collection<String> strList, String... keywords) {
-        if (!Srl.containsKeywordAny(strList, keywords)) {
-            fail("the list should have any keyword but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the list has an element containing any keyword. (ignore case)
-     * <pre>
-     * List&lt;String&gt; strList = ...; <span style="color: #3F7E5E">// [foo, bar]</span>
-     * assertContainsKeyword(strList, "fo", "ar", "foo"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "fo", "ux", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "Fo", "ux", "qux"); <span style="color: #3F7E5E">// true</span>
-     * assertContainsKeyword(strList, "po", "ux", "qux"); <span style="color: #3F7E5E">// false</span>
-     * </pre>
-     * @param strList The list of string. (NotNull)
-     * @param keywords The array of keyword string. (NotNull)
-     */
-    protected void assertContainsKeywordAnyIgnoreCase(Collection<String> strList, String... keywords) {
-        if (!Srl.containsKeywordAnyIgnoreCase(strList, keywords)) {
-            fail("the list should have any keyword (case ignored) but not found: " + newArrayList(keywords));
-        }
-    }
-
-    /**
-     * Assert that the list has any element (not empty). <br>
-     * You can use this to guarantee assertion in loop like this:
-     * <pre>
-     * List&lt;Member&gt; memberList = memberBhv.selectList(cb);
-     * <span style="color: #FD4747">assertHasAnyElement(memberList);</span>
-     * for (Member member : memberList) {
-     *     assertTrue(member.getMemberName().startsWith("S"));
-     * }
-     * </pre>
-     * @param notEmptyList The list expected not empty. (NotNull)
-     */
-    protected void assertHasAnyElement(Collection<?> notEmptyList) {
-        if (notEmptyList.isEmpty()) {
-            fail("the list should have any element (not empty) but empty.");
-        }
-    }
-
-    protected void assertHasOnlyOneElement(Collection<?> lonelyList) {
-        if (lonelyList.size() != 1) {
-            fail("the list should have the only one element but: " + lonelyList);
-        }
-    }
-
-    protected void assertHasPluralElement(Collection<?> crowdedList) {
-        if (crowdedList.size() < 2) {
-            fail("the list should have plural elements but: " + crowdedList);
-        }
-    }
-
-    protected void assertHasZeroElement(Collection<?> emptyList) {
-        if (!emptyList.isEmpty()) {
-            fail("the list should have zero element (empty) but: " + emptyList);
-        }
-    }
-
-    // -----------------------------------------------------
-    //                                             Exception
-    //                                             ---------
-    /**
-     * Assert that the callback throws the exception.
-     * <pre>
-     * String <span style="color: #553000">str</span> = <span style="color: #70226C">null</span>;
-     * <span style="color: #CC4747">assertException</span>(NullPointerException.<span style="color: #70226C">class</span>, () <span style="color: #90226C; font-weight: bold"><span style="font-size: 120%">-</span>&gt;</span> <span style="color: #553000">str</span>.toString());
-     * 
-     * <span style="color: #CC4747">assertException</span>(NullPointerException.<span style="color: #70226C">class</span>, () <span style="color: #90226C; font-weight: bold"><span style="font-size: 120%">-</span>&gt;</span> <span style="color: #553000">str</span>.toString()).<span style="color: #994747">handle</span>(<span style="color: #553000">cause</span> <span style="color: #90226C; font-weight: bold"><span style="font-size: 120%">-</span>&gt;</span> {
-     *     assertContains(<span style="color: #553000">cause</span>.getMessage(), ...);
-     * });
-     * </pre>
-     * @param <CAUSE> The type of expected cause exception. 
-     * @param exceptionType The expected exception type. (NotNull)
-     * @param noArgInLambda The callback for calling methods that should throw the exception. (NotNull)
-     * @return The after object that has handler of expected cause for chain call. (NotNull) 
-     */
-    protected <CAUSE extends Throwable> ExceptionExpectationAfter<CAUSE> assertException(Class<CAUSE> exceptionType,
-            ExceptionExaminer noArgInLambda) {
-        assertNotNull(exceptionType);
-        final String expected = exceptionType.getSimpleName();
-        Throwable cause = null;
-        try {
-            noArgInLambda.examine();
-        } catch (Throwable e) {
-            cause = e;
-            final Class<? extends Throwable> causeClass = cause.getClass();
-            final String exp = buildExceptionSimpleExp(cause);
-            if (!exceptionType.isAssignableFrom(causeClass)) {
-                final String actual = causeClass.getSimpleName();
-                log("*Different exception, expected: {} but...", exceptionType.getName(), cause);
-                fail("*Different exception, expected: " + expected + " but: " + actual + " => " + exp);
-            } else {
-                log("expected: " + exp);
-            }
-        }
-        if (cause == null) {
-            fail("*No exception, expected: " + expected);
-        }
-        @SuppressWarnings("unchecked")
-        final CAUSE castCause = (CAUSE) cause;
-        return new ExceptionExpectationAfter<CAUSE>(castCause);
-    }
-
-    private String buildExceptionSimpleExp(Throwable cause) {
-        final StringBuilder sb = new StringBuilder();
-        final String firstMsg = cause.getMessage();
-        boolean line = firstMsg != null && firstMsg.contains(ln());
-        sb.append("(").append(cause.getClass().getSimpleName()).append(")").append(firstMsg);
-        final Throwable secondCause = cause.getCause();
-        if (secondCause != null) {
-            final String secondMsg = secondCause.getMessage();
-            line = line || secondMsg != null && secondMsg.contains(ln());
-            sb.append(line ? ln() : " / ");
-            sb.append("(").append(secondCause.getClass().getSimpleName()).append(")").append(secondMsg);
-            final Throwable thirdCause = secondCause.getCause();
-            if (thirdCause != null) {
-                final String thirdMsg = thirdCause.getMessage();
-                line = line || thirdMsg != null && thirdMsg.contains(ln());
-                sb.append(line ? ln() : " / ");
-                sb.append("(").append(thirdCause.getClass().getSimpleName()).append(")").append(thirdMsg);
-            }
-        }
-        final String whole = sb.toString();
-        return (whole.contains(ln()) ? ln() : "") + whole;
-    }
-
-    // -----------------------------------------------------
     //                                                 Order
     //                                                 -----
     /**
@@ -592,7 +169,7 @@ public abstract class PlainTestCase extends TestCase {
     protected <BEAN> void assertOrder(List<BEAN> beanList, Consumer<ExpectedBeanOrderBy<BEAN>> oneArgLambda) {
         assertNotNull(beanList);
         assertNotNull(oneArgLambda);
-        assertHasAnyElement(beanList);
+        assertFalse(beanList.isEmpty());
         new BeanOrderValidator<BEAN>(oneArgLambda).validateOrder(beanList, vio -> {
             fail("[Order Failure] " + vio); // for now
         });
@@ -710,9 +287,9 @@ public abstract class PlainTestCase extends TestCase {
             }
             final String appended;
             if (msg instanceof Timestamp) {
-                appended = toString(msg, "yyyy/MM/dd HH:mm:ss.SSS");
+                appended = DfTypeUtil.toString(msg, "yyyy/MM/dd HH:mm:ss.SSS");
             } else if (msg instanceof Date) {
-                appended = toString(msg, "yyyy/MM/dd");
+                appended = DfTypeUtil.toString(msg, "yyyy/MM/dd");
             } else {
                 String strMsg = msg != null ? msg.toString() : null;
                 int nextIndex = index + 1;
@@ -751,207 +328,6 @@ public abstract class PlainTestCase extends TestCase {
         }
         // see comment for logger definition for the detail
         //_xlogger.log(PlainTestCase.class.getName(), Level.DEBUG, msg, cause);
-    }
-
-    // ===================================================================================
-    //                                                                         Show Helper
-    //                                                                         ===========
-    protected void showList(List<?>... list) {
-        int count = 1;
-        for (List<? extends Object> ls : list) {
-            log("[list" + count + "]");
-            for (Object entity : ls) {
-                log("  " + entity);
-            }
-            ++count;
-        }
-    }
-
-    protected void showPage(PagingResultBean<?>... pages) {
-        int count = 1;
-        for (PagingResultBean<? extends Object> page : pages) {
-            log("[page" + count + "]");
-            for (Object entity : page) {
-                log("  " + entity);
-            }
-            ++count;
-        }
-    }
-
-    // ===================================================================================
-    //                                                                       String Helper
-    //                                                                       =============
-    protected String replace(String str, String fromStr, String toStr) {
-        return Srl.replace(str, fromStr, toStr);
-    }
-
-    protected List<String> splitList(String str, String delimiter) {
-        return Srl.splitList(str, delimiter);
-    }
-
-    protected List<String> splitListTrimmed(String str, String delimiter) {
-        return Srl.splitListTrimmed(str, delimiter);
-    }
-
-    protected String toString(Object obj) {
-        return DfTypeUtil.toString(obj);
-    }
-
-    protected String toString(Object obj, String pattern) {
-        return DfTypeUtil.toString(obj, pattern);
-    }
-
-    // ===================================================================================
-    //                                                                       Number Helper
-    //                                                                       =============
-    protected Integer toInteger(Object obj) {
-        return DfTypeUtil.toInteger(obj);
-    }
-
-    protected Long toLong(Object obj) {
-        return DfTypeUtil.toLong(obj);
-    }
-
-    protected BigDecimal toBigDecimal(Object obj) {
-        return DfTypeUtil.toBigDecimal(obj);
-    }
-
-    // ===================================================================================
-    //                                                                         Date Helper
-    //                                                                         ===========
-    protected LocalDate currentLocalDate() {
-        return toLocalDate(currentUtilDate());
-    }
-
-    protected LocalDateTime currentLocalDateTime() {
-        return toLocalDateTime(currentUtilDate());
-    }
-
-    protected LocalTime currentLocalTime() {
-        return toLocalTime(currentUtilDate());
-    }
-
-    /**
-     * @return The current utility date. (NotNull)
-     * @deprecated use currentUtilDate()
-     */
-    protected Date currentDate() {
-        return currentUtilDate();
-    }
-
-    protected Date currentUtilDate() {
-        return DBFluteSystem.currentDate();
-    }
-
-    protected Timestamp currentTimestamp() {
-        return new Timestamp(DBFluteSystem.currentTimeMillis());
-    }
-
-    protected LocalDate toLocalDate(Object obj) {
-        return DfTypeUtil.toLocalDate(obj, getUnitTimeZone());
-    }
-
-    protected LocalDateTime toLocalDateTime(Object obj) {
-        return DfTypeUtil.toLocalDateTime(obj, getUnitTimeZone());
-    }
-
-    protected LocalTime toLocalTime(Object obj) {
-        return DfTypeUtil.toLocalTime(obj, getUnitTimeZone());
-    }
-
-    /**
-     * @param obj The source of date. (NullAllowed)
-     * @return The utility date. (NotNull)
-     * @deprecated use currentUtilDate()
-     */
-    protected Date toDate(Object obj) {
-        return toUtilDate(obj);
-    }
-
-    protected Date toUtilDate(Object obj) {
-        return DfTypeUtil.toDate(obj);
-    }
-
-    protected Timestamp toTimestamp(Object obj) {
-        return DfTypeUtil.toTimestamp(obj);
-    }
-
-    protected TimeZone getUnitTimeZone() {
-        return DBFluteSystem.getFinalTimeZone();
-    }
-
-    // ===================================================================================
-    //                                                                   Collection Helper
-    //                                                                   =================
-    protected <ELEMENT> ArrayList<ELEMENT> newArrayList() {
-        return DfCollectionUtil.newArrayList();
-    }
-
-    public <ELEMENT> ArrayList<ELEMENT> newArrayList(Collection<ELEMENT> elements) {
-        return DfCollectionUtil.newArrayList(elements);
-    }
-
-    protected <ELEMENT> ArrayList<ELEMENT> newArrayList(@SuppressWarnings("unchecked") ELEMENT... elements) {
-        return DfCollectionUtil.newArrayList(elements);
-    }
-
-    protected <ELEMENT> HashSet<ELEMENT> newHashSet() {
-        return DfCollectionUtil.newHashSet();
-    }
-
-    protected <ELEMENT> HashSet<ELEMENT> newHashSet(Collection<ELEMENT> elements) {
-        return DfCollectionUtil.newHashSet(elements);
-    }
-
-    protected <ELEMENT> HashSet<ELEMENT> newHashSet(@SuppressWarnings("unchecked") ELEMENT... elements) {
-        return DfCollectionUtil.newHashSet(elements);
-    }
-
-    protected <ELEMENT> LinkedHashSet<ELEMENT> newLinkedHashSet() {
-        return DfCollectionUtil.newLinkedHashSet();
-    }
-
-    protected <ELEMENT> LinkedHashSet<ELEMENT> newLinkedHashSet(Collection<ELEMENT> elements) {
-        return DfCollectionUtil.newLinkedHashSet(elements);
-    }
-
-    protected <ELEMENT> LinkedHashSet<ELEMENT> newLinkedHashSet(@SuppressWarnings("unchecked") ELEMENT... elements) {
-        return DfCollectionUtil.newLinkedHashSet(elements);
-    }
-
-    protected <KEY, VALUE> HashMap<KEY, VALUE> newHashMap() {
-        return DfCollectionUtil.newHashMap();
-    }
-
-    protected <KEY, VALUE> HashMap<KEY, VALUE> newHashMap(KEY key, VALUE value) {
-        return DfCollectionUtil.newHashMap(key, value);
-    }
-
-    protected <KEY, VALUE> HashMap<KEY, VALUE> newHashMap(KEY key1, VALUE value1, KEY key2, VALUE value2) {
-        return DfCollectionUtil.newHashMap(key1, value1, key2, value2);
-    }
-
-    protected <KEY, VALUE> LinkedHashMap<KEY, VALUE> newLinkedHashMap() {
-        return DfCollectionUtil.newLinkedHashMap();
-    }
-
-    protected <KEY, VALUE> LinkedHashMap<KEY, VALUE> newLinkedHashMap(KEY key, VALUE value) {
-        return DfCollectionUtil.newLinkedHashMap(key, value);
-    }
-
-    protected <KEY, VALUE> LinkedHashMap<KEY, VALUE> newLinkedHashMap(KEY key1, VALUE value1, KEY key2, VALUE value2) {
-        return DfCollectionUtil.newLinkedHashMap(key1, value1, key2, value2);
-    }
-
-    // ===================================================================================
-    //                                                                       System Helper
-    //                                                                       =============
-    /**
-     * Get the line separator. (LF fixedly)
-     * @return The string of the line separator. (NotNull)
-     */
-    protected String ln() {
-        return "\n";
     }
 
     // ===================================================================================
@@ -1125,7 +501,7 @@ public abstract class PlainTestCase extends TestCase {
             }
 
             public String help_ln() {
-                return ln();
+                return "\n";
             }
         };
     }
@@ -1336,10 +712,10 @@ public abstract class PlainTestCase extends TestCase {
 
     protected AccessContext createTestCaseAccessContext() {
         final AccessContext context = new AccessContext();
-        context.setAccessLocalDate(currentLocalDate());
-        context.setAccessLocalDateTime(currentLocalDateTime());
-        context.setAccessTimestamp(currentTimestamp());
-        context.setAccessDate(currentUtilDate());
+        context.setAccessLocalDate(DBFluteSystem.currentLocalDate());
+        context.setAccessLocalDateTime(DBFluteSystem.currentLocalDateTime());
+        context.setAccessTimestamp(DBFluteSystem.currentTimestamp());
+        context.setAccessDate(DBFluteSystem.currentDate());
         context.setAccessUser(Thread.currentThread().getName());
         context.setAccessProcess(getClass().getSimpleName());
         context.setAccessModule(getClass().getSimpleName());
@@ -1403,6 +779,32 @@ public abstract class PlainTestCase extends TestCase {
             DBFluteSystem.unlock();
             DBFluteSystem.setCurrentDateProvider(null);
         }
+    }
+
+    // ===================================================================================
+    //                                                                          Compatible
+    //                                                                          ==========
+    private void assertEquals(Object expected, Object actual) { // for compatible
+        Assertions.assertEquals(expected, actual);
+    }
+
+    private void assertNotNull(Object actual) { // for compatible
+        Assertions.assertNotNull(actual);
+    }
+
+    private void assertFalse(boolean condition) { // for compatible
+        Assertions.assertFalse(condition);
+    }
+
+    private void fail(String msg) { // for compatible
+        Assertions.fail(msg);
+    }
+
+    // -----------------------------------------------------
+    //                                              Thinking
+    //                                              --------
+    protected String getName() {
+        return "xxx"; // TODO jflute how can I get? (2020/06/15)
     }
 
     // ===================================================================================

@@ -16,8 +16,14 @@
 package org.dbflute.utflute.core;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 
-import junit.framework.AssertionFailedError;
+import org.dbflute.system.DBFluteSystem;
+import org.dbflute.util.DfCollectionUtil;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author jflute
@@ -28,6 +34,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     //                                                                            Settings
     //                                                                            ========
     @Override
+    @AfterEach
     protected void tearDown() throws Exception {
         if (getName().startsWith("test_markHere_nonAsserted")) {
             try {
@@ -41,144 +48,9 @@ public class PlainTestCaseTest extends PlainTestCase {
     }
 
     // ===================================================================================
-    //                                                                       Assert Helper
-    //                                                                       =============
-    // -----------------------------------------------------
-    //                                              Contains
-    //                                              --------
-    public void test_assertContains() throws Exception {
-        assertContains("foo", "fo");
-        try {
-            assertContains("foo", "Fo");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertContainsIgnoreCase("foo", "Fo");
-        assertNotContains("foo", "ux");
-        assertNotContains("foo", "Fo");
-        try {
-            assertNotContains("foo", "fo");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertNotContainsIgnoreCase("foo", "ux");
-        try {
-            assertNotContains("foo", "Fo");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-    }
-
-    public void test_assertContainsAll() throws Exception {
-        assertContainsAll("foo", "fo", "oo");
-        try {
-            assertContainsAll("foo", "fo", "sea");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-    }
-
-    public void test_assertContainsKeyword() throws Exception {
-        assertContainsKeyword(newArrayList("foo", "bar", "qux"), "ar");
-        try {
-            assertContainsKeyword(newArrayList("foo", "bar", "qux"), "co");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertContainsKeywordAll(newArrayList("foo", "bar", "qux"), "ar", "ux");
-        try {
-            assertContainsKeywordAll(newArrayList("foo", "bar", "qux"), "ar", "no");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertContainsKeywordAny(newArrayList("foo", "bar", "qux"), "ar", "ux");
-        assertContainsKeywordAny(newArrayList("foo", "bar", "qux"), "ar", "no");
-        try {
-            assertContainsKeywordAny(newArrayList("foo", "bar", "qux"), "no1", "no2");
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-    }
-
-    // -----------------------------------------------------
-    //                                                  Has
-    //                                                 -----
-    public void test_assertHas() throws Exception {
-        assertHasAnyElement(newArrayList("foo"));
-        assertHasAnyElement(newArrayList("foo", "bar"));
-        try {
-            assertHasAnyElement(newArrayList());
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertHasOnlyOneElement(newArrayList("foo"));
-        try {
-            assertHasOnlyOneElement(newArrayList("foo", "bar"));
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        try {
-            assertHasOnlyOneElement(newArrayList());
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertHasPluralElement(newArrayList("foo", "bar"));
-        try {
-            assertHasPluralElement(newArrayList("foo"));
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        try {
-            assertHasPluralElement(newArrayList());
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        assertHasZeroElement(newArrayList());
-        try {
-            assertHasZeroElement(newArrayList("foo"));
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-        try {
-            assertHasZeroElement(newArrayList("foo", "bar"));
-            fail();
-        } catch (AssertionFailedError e) {
-            log(e.getMessage());
-        }
-    }
-
-    // -----------------------------------------------------
-    //                                             Exception
-    //                                             ---------
-    public void test_exception_basic() throws Exception {
-        String str = null;
-        assertException(NullPointerException.class, () -> str.toString());
-        assertException(IllegalStateException.class, () -> {
-            throw new IllegalStateException("a\nb\nc");
-        });
-        assertException(IllegalStateException.class, () -> {
-            throw new IllegalStateException("sealandpiari");
-        }).handle(cause -> {
-            assertContains(cause.getMessage(), "land");
-        });
-    }
-
-    // ===================================================================================
     //                                                                           Mark Here
     //                                                                           =========
+    @Test
     public void test_markHere_basic() throws Exception {
         markHere("foo");
         assertMarked("foo");
@@ -192,6 +64,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         assertMarked("qux");
     }
 
+    @Test
     public void test_markHere_phase() throws Exception {
         markHere("foo");
         markHere("bar");
@@ -214,10 +87,12 @@ public class PlainTestCaseTest extends PlainTestCase {
         assertMarked("bar");
     }
 
+    @Test
     public void test_markHere_nonAsserted_basic() throws Exception {
         markHere("foo");
     }
 
+    @Test
     public void test_markHere_nonAsserted_contains_assert() throws Exception {
         markHere("foo");
         markHere("foo");
@@ -226,6 +101,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         markHere("qux");
     }
 
+    @Test
     public void test_markHere_nonAsserted_many_mark() throws Exception {
         markHere("foo");
         markHere("foo");
@@ -236,15 +112,17 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                      Logging Helper
     //                                                                      ==============
+    @Test
     public void test_log_basic() throws Exception {
         // check your eyes
         log("foo");
         log("foo", "bar");
         log("foo", "bar", "qux");
         log("foo", "bar", "qux", new RuntimeException("corge"));
-        log("foo", currentUtilDate(), currentTimestamp());
+        log("foo", DBFluteSystem.currentDate(), DBFluteSystem.currentTimestamp());
     }
 
+    @Test
     public void test_log_placeholder() throws Exception {
         // check your eyes
         log("sea: {}, land: {}"); // sea: {}, land: {}
@@ -270,8 +148,21 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                             DBFlute
     //                                                                             =======
+    @Test
     public void test_switchCurrentDate() {
         switchCurrentDate(() -> LocalDateTime.of(2016, 10, 27, 3, 0));
-        log(currentLocalDate(), currentLocalDateTime(), currentUtilDate(), currentTimestamp());
+        log(DBFluteSystem.currentLocalDate(), DBFluteSystem.currentLocalDateTime(), DBFluteSystem.currentDate(),
+                DBFluteSystem.currentTimestamp());
+    }
+
+    // ===================================================================================
+    //                                                                          Compatible
+    //                                                                          ==========
+    private void fail() { // for compatible
+        Assertions.fail();
+    }
+
+    protected <ELEMENT> ArrayList<ELEMENT> newArrayList(@SuppressWarnings("unchecked") ELEMENT... elements) {
+        return DfCollectionUtil.newArrayList(elements);
     }
 }
