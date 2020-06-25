@@ -28,6 +28,7 @@ import org.dbflute.utflute.core.binding.ComponentProvider;
 import org.dbflute.utflute.core.transaction.TransactionFailureException;
 import org.dbflute.utflute.core.transaction.TransactionResource;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.TestInfo;
 
 /**
  * @author jflute
@@ -69,8 +70,8 @@ public abstract class InjectionTestCase extends PlainTestCase {
     //                                                Set up
     //                                                ------
     @Override
-    public void setUp() throws Exception {
-        super.setUp();
+    public void setUp(TestInfo testInfo) throws Exception {
+        super.setUp(testInfo);
 
         xsetupBeforeContainer();
         xsetupBeforeTestCaseContainer();

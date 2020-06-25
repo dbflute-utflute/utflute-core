@@ -61,6 +61,7 @@ import org.dbflute.util.Srl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,6 +84,9 @@ public abstract class PlainTestCase {
     // ===================================================================================
     //                                                                           Attribute
     //                                                                           =========
+    /** The method name of test. (NullAllowed: before preparation) */
+    private String _xtestMethodName;
+
     /** The manager of mark here. (NullAllowed: lazy-loaded) */
     private MarkHereManager _xmarkHereManager;
 
@@ -99,11 +103,16 @@ public abstract class PlainTestCase {
     //                                                                            Settings
     //                                                                            ========
     @BeforeEach
-    protected void setUp() throws Exception {
+    protected void setUp(TestInfo testInfo) throws Exception {
+        xkeepTestMethodName(testInfo);
         xreserveShowTitle();
         if (!xisSuppressTestCaseAccessContext()) {
             initializeTestCaseAccessContext();
         }
+    }
+
+    protected void xkeepTestMethodName(TestInfo testInfo) {
+        _xtestMethodName = testInfo.getTestMethod().map(md -> md.getName()).orElse("unknown");
     }
 
     protected void xreserveShowTitle() {
@@ -112,7 +121,7 @@ public abstract class PlainTestCase {
     }
 
     protected String xgetCaseDisp() {
-        return getClass().getSimpleName() + "." + getName() + "()";
+        return getClass().getSimpleName() + "." + getTestMethodName() + "()";
     }
 
     // TODO jflute how do I do in junit5? (or needed?) (2020/06/15)
@@ -141,7 +150,7 @@ public abstract class PlainTestCase {
     //                                            Basic Info
     //                                            ----------
     protected Method getTestMethod() {
-        String methodName = getName();
+        String methodName = getTestMethodName();
         try {
             return getClass().getMethod(methodName, (Class[]) null);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -800,16 +809,13 @@ public abstract class PlainTestCase {
         Assertions.fail(msg);
     }
 
-    // -----------------------------------------------------
-    //                                              Thinking
-    //                                              --------
-    protected String getName() {
-        return "xxx"; // TODO jflute how can I get? (2020/06/15)
-    }
-
     // ===================================================================================
     //                                                                            Accessor
     //                                                                            ========
+    protected String getTestMethodName() {
+        return _xtestMethodName; // not null after preparation
+    }
+
     protected Logger xgetLogger() {
         return _xlogger;
     }

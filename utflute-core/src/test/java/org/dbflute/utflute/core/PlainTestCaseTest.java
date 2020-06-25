@@ -36,7 +36,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     @Override
     @AfterEach
     protected void tearDown() throws Exception {
-        if (getName().startsWith("test_markHere_nonAsserted")) {
+        if (getTestMethodName().startsWith("test_markHere_nonAsserted")) {
             try {
                 super.tearDown();
             } catch (AssertionFailedError e) {
