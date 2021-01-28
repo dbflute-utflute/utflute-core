@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>0.9.5</version>
+	<version>1.5.0-A-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
