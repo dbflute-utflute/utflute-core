@@ -13,9 +13,9 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<dbflute.version>1.1.1</dbflute.version>
-		<utflute.core.version>0.9.5</utflute.core.version>
-		<h2.jdbc.version>1.4.193</h2.jdbc.version>
+		<dbflute.version>1.2.1</dbflute.version> <!-- about one year old (from now) -->
+		<utflute.core.version>1.5.0-A-SNAPSHOT</utflute.core.version>
+		<h2.jdbc.version>1.4.200</h2.jdbc.version>
 	</properties>
 
 	<licenses>
