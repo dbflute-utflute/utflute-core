@@ -93,6 +93,11 @@
 						<outputEncoding>UTF-8</outputEncoding>
 					</configuration>
 				</plugin>
+				<plugin>
+					<!-- needs JUnit5 execution on Maven test -->
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>3.0.0-M5</version>
+				</plugin>
 				<!-- to avoid warning 'maven-enforcer-plugin (goal "enforce") is ignored by m2e' -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
