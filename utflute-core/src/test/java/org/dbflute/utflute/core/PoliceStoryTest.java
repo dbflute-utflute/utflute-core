@@ -83,8 +83,4 @@ public class PoliceStoryTest extends PlainTestCase {
     private void fail(String msg) { // for compatible
         Assertions.fail(msg);
     }
-
-    private String ln() { // for compatible
-        return "\n";
-    }
 }
