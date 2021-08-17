@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dbflute.utflute</groupId>
 	<artifactId>utflute-base</artifactId>
-	<version>1.5.1-A-SNAPSHOT</version>
+	<version>1.5.1-B-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>UTFlute Base</name>
@@ -14,7 +14,7 @@
 
 	<properties>
 		<dbflute.version>1.2.3</dbflute.version> <!-- about one year old (from now) -->
-		<utflute.core.version>1.5.1-A-SNAPSHOT</utflute.core.version>
+		<utflute.core.version>1.5.1-B-SNAPSHOT</utflute.core.version>
 		<h2.jdbc.version>1.4.200</h2.jdbc.version>
 	</properties>
 
