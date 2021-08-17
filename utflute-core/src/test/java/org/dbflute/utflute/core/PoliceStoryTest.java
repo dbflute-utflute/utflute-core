@@ -46,7 +46,7 @@ public class PoliceStoryTest extends PlainTestCase {
                 });
                 String text = sb.toString();
                 log(clazz);
-                assertContains(text, "Copyright 2014-2017");
+                assertContains(text, "Copyright 2014-2021");
             }
         });
         assertMarked("called");
