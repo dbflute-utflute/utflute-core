@@ -22,17 +22,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.AssertionFailedError;
-
 import org.dbflute.exception.IllegalConditionBeanOperationException;
 import org.dbflute.helper.message.ExceptionMessageBuilder;
-import org.dbflute.utflute.core.PlainTestCase;
 import org.dbflute.utflute.core.cannonball.CannonballCar;
 import org.dbflute.utflute.core.cannonball.CannonballDragon;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballProjectA;
 import org.dbflute.utflute.core.cannonball.CannonballRetireException;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
+
+import junit.framework.AssertionFailedError;
 
 /**
  * @author jflute
