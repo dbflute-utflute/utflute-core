@@ -13,7 +13,7 @@
 	<inceptionYear>2014</inceptionYear>
 
 	<properties>
-		<dbflute.version>1.2.4</dbflute.version> <!-- about one year old (from now) -->
+		<dbflute.version>1.2.5</dbflute.version> <!-- about one year old (from now) -->
 		<utflute.core.version>1.5.1</utflute.core.version>
 		<h2.jdbc.version>1.4.200</h2.jdbc.version>
 	</properties>
