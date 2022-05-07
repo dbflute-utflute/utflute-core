@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,17 +22,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.AssertionFailedError;
-
 import org.dbflute.exception.IllegalConditionBeanOperationException;
 import org.dbflute.helper.message.ExceptionMessageBuilder;
-import org.dbflute.utflute.core.PlainTestCase;
 import org.dbflute.utflute.core.cannonball.CannonballCar;
 import org.dbflute.utflute.core.cannonball.CannonballDragon;
 import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballProjectA;
 import org.dbflute.utflute.core.cannonball.CannonballRetireException;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
+
+import junit.framework.AssertionFailedError;
 
 /**
  * @author jflute
