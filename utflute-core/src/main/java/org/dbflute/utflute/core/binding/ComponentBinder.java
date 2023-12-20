@@ -24,8 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
 import org.dbflute.helper.beans.DfBeanDesc;
 import org.dbflute.helper.beans.DfPropertyDesc;
 import org.dbflute.helper.beans.factory.DfBeanDescFactory;
@@ -48,6 +46,28 @@ public class ComponentBinder {
     //                                                                          Definition
     //                                                                          ==========
     private static final Logger _logger = LoggerFactory.getLogger(ComponentBinder.class);
+
+    protected static final boolean enableJakartaAnnotations;
+
+    static {
+        boolean enable = false;
+        try {
+            Class.forName("jakarta.annotation.Resource"); // jakarta.annotation-api
+            enable = true;
+        } catch (final Throwable ignore) {}
+        enableJakartaAnnotations = enable;
+    }
+
+    protected static final boolean enableJavaxAnnotations;
+
+    static {
+        boolean enable = false;
+        try {
+            Class.forName("javax.annotation.Resource"); // javax.annotation-api
+            enable = true;
+        } catch (final Throwable ignore) {}
+        enableJavaxAnnotations = enable;
+    }
 
     // ===================================================================================
     //                                                                           Attribute
@@ -577,8 +597,15 @@ public class ComponentBinder {
 
     protected String extractSpecifiedName(Annotation bindingAnnotation) {
         String specifiedName = null;
-        if (bindingAnnotation instanceof Resource) { // only standard annotation here for now
-            specifiedName = ((Resource) bindingAnnotation).name(); // might be empty string
+        if(enableJakartaAnnotations) {
+            if (bindingAnnotation instanceof jakarta.annotation.Resource) { // only standard annotation here for now
+                specifiedName = ((jakarta.annotation.Resource) bindingAnnotation).name(); // might be empty string
+            }
+        }
+        if (enableJavaxAnnotations) {
+            if (bindingAnnotation instanceof javax.annotation.Resource) { // only standard annotation here for now
+                specifiedName = ((javax.annotation.Resource) bindingAnnotation).name(); // might be empty string
+            }
         }
         return Srl.is_NotNull_and_NotTrimmedEmpty(specifiedName) ? specifiedName : null;
     }
