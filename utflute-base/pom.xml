@@ -224,19 +224,13 @@
 			<!-- ================ -->
 			<!-- |   provided   | -->
 			<!-- ================ -->
-		    <!-- j2ee -->
 			<dependency>
-				<groupId>org.apache.geronimo.specs</groupId>
-				<artifactId>geronimo-jta_1.1_spec</artifactId>
-				<version>1.0</version>
+				<groupId>javax.transaction</groupId>
+				<artifactId>javax.transaction-api</artifactId>
+				<version>1.2</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.geronimo.specs</groupId>
-				<artifactId>geronimo-ejb_3.0_spec</artifactId>
-				<version>1.0</version>
-			</dependency>
-	
-		    <!-- junit -->
+
+		    <!-- unit test -->
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
@@ -255,9 +249,9 @@
 
 			<!-- logging -->
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.14</version>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.36</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -275,22 +269,14 @@
 		<!-- ================ -->
 		<!-- |   provided   | -->
 		<!-- ================ -->
-	    <!-- j2ee -->
+		<!-- transaction -->
 		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jta_1.1_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-ejb_3.0_spec</artifactId>
+			<groupId>javax.transaction</groupId>
+			<artifactId>javax.transaction-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- ================ -->
-		<!-- |   provided   | -->
-		<!-- ================ -->
-	    <!-- junit -->
+	    <!-- unit test -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -311,12 +297,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
