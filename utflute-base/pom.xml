@@ -224,6 +224,7 @@
 			<!-- ================ -->
 			<!-- |   provided   | -->
 			<!-- ================ -->
+			<!-- transaction -->
 			<dependency>
 				<groupId>javax.transaction</groupId>
 				<artifactId>javax.transaction-api</artifactId>
