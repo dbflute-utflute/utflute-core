@@ -59,12 +59,6 @@
 		<url>git@github.com:dbflute-utflute/dbflute-core.git</url>
 	</scm>
 
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>9</version>
-	</parent>
-
 	<build>
 		<defaultGoal>validate</defaultGoal>
 		<pluginManagement>
@@ -162,11 +156,9 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--
-			 'xxx.jar.asc' file can be created by this plug-in
-			 you can deploy by 'mvn -e clean deploy -Dgpg.keyname=xxx -Dgpg.passphrase="xxx"'
-			 -->
-            <plugin>
+  			<!-- 'xxx.jar.asc' file can be created by this plug-in you can deploy
+ 				by 'mvn -e clean deploy -Dgpg.keyname=xxx -Dgpg.passphrase="xxx"' -->
+            <plugin> <!-- needs to create jar deployed to maven central -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.5</version>
@@ -180,34 +172,17 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin> <!-- new maven central way since 2025/06 -->
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.8.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>sonatype-oss-public</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven.seasar.org</id>
-			<name>The Seasar Foundation Maven2 Repository</name>
-			<url>https://maven.seasar.org/maven2</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>snapshot.maven.seasar.org</id>
-			<name>The Seasar Foundation Maven2 Snapshot Repository</name>
-			<url>https://maven.seasar.org/maven2-snapshot</url>
-		</repository>
-	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
