@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -254,19 +254,23 @@ public abstract class InjectionTestCase extends PlainTestCase {
     protected ComponentProvider xcreateComponentProvider() {
         return new ComponentProvider() {
 
+            @Override
             public <COMPONENT> COMPONENT provideComponent(Class<COMPONENT> type) {
                 return getComponent(type);
             }
 
+            @Override
             @SuppressWarnings("unchecked")
             public <COMPONENT> COMPONENT provideComponent(String name) {
                 return (COMPONENT) getComponent(name);
             }
 
+            @Override
             public boolean existsComponent(Class<?> type) {
                 return hasComponent(type);
             }
 
+            @Override
             public boolean existsComponent(String name) {
                 return hasComponent(name);
             }
@@ -302,6 +306,26 @@ public abstract class InjectionTestCase extends PlainTestCase {
      * FooAction <span style="color: #553000">action</span> = <span style="color: #70226C">new</span> FooAction();
      * registerMock(<span style="color: #FD4747">inject</span>(<span style="color: #70226C">new</span> MockFooLogic()));
      * inject(<span style="color: #553000">action</span>); <span style="color: #3F7E5E">// the new-created mock logic is injected</span>
+     * </pre>
+     * The nest mock is limited. Normally you can mock until 2 level nest object.<br>
+     * But you can resolve it by mock relay.<br>
+     * e.g. Action to Assist to Logic to Wizard
+     * <pre>
+     * <span style="color: #3F7E5E">// Good</span>
+     * registerMock(<span style="color: #FD4747">inject</span>(<span style="color: #70226C">new</span> MockFooLogic()));
+     * FooAction <span style="color: #553000">action</span> = <span style="color: #70226C">new</span> FooAction();
+     * inject(<span style="color: #553000">action</span>); <span style="color: #3F7E5E">// refers real assist to mock logic</span>
+     * 
+     * <span style="color: #3F7E5E">// Bad (but...)</span>
+     * registerMock(<span style="color: #FD4747">inject</span>(<span style="color: #70226C">new</span> MockFooWizard()));
+     * FooAction <span style="color: #553000">action</span> = <span style="color: #70226C">new</span> FooAction();
+     * inject(<span style="color: #553000">action</span>); <span style="color: #3F7E5E">// refers real assist to real logic to real wizard</span>
+     * 
+     * <span style="color: #3F7E5E">// Good (using mock relay)</span>
+     * registerMock(<span style="color: #FD4747">inject</span>(<span style="color: #70226C">new</span> MockFooWizard()));
+     * registerMock(<span style="color: #FD4747">inject</span>(<span style="color: #70226C">new</span> MockFooLogic()));
+     * FooAction <span style="color: #553000">action</span> = <span style="color: #70226C">new</span> FooAction();
+     * inject(<span style="color: #553000">action</span>); <span style="color: #3F7E5E">// refers real assist to mock logic to mock wizard</span>
      * </pre>
      * @param mock The mock instance injected to component. (NotNull)
      */
@@ -357,10 +381,12 @@ public abstract class InjectionTestCase extends PlainTestCase {
 
     protected BindingRuleProvider createBindingRuleProvider() {
         return new BindingRuleProvider() {
+            @Override
             public Map<Class<? extends Annotation>, BindingAnnotationRule> provideBindingAnnotationRuleMap() {
                 return xprovideBindingAnnotationRuleMap();
             }
 
+            @Override
             public String filterByBindingNamingRule(String propertyName, Class<?> propertyType) {
                 return xfilterByBindingNamingRule(propertyName, propertyType);
             }
@@ -438,7 +464,7 @@ public abstract class InjectionTestCase extends PlainTestCase {
     // ===================================================================================
     //                                                                  Container Handling
     //                                                                  ==================
-    protected abstract void xdestroyContainer();
+    protected abstract void xdestroyContainer(); // if container is working
 
     /**
      * Get component from DI container for the type.

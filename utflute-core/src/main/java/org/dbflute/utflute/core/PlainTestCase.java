@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -562,34 +562,42 @@ public abstract class PlainTestCase {
     protected CannonballStaff xcreateCannonballStaff() {
         return new CannonballStaff() {
 
+            @Override
             public void help_prepareBeginning() {
                 xprepareCannonballBeginning();
             }
 
+            @Override
             public void help_prepareAccessContext() {
                 xprepareCannonballAccessContext();
             }
 
+            @Override
             public TransactionResource help_beginTransaction() {
                 return beginNewTransaction();
             }
 
+            @Override
             public void help_clearAccessContext() {
                 xclearAccessContextOnThread();
             }
 
+            @Override
             public void help_assertEquals(Object expected, Object actual) {
                 assertEquals(expected, actual);
             }
 
+            @Override
             public void help_fail(String msg) {
                 fail(msg);
             }
 
+            @Override
             public void help_log(Object... msgs) {
                 log(msgs);
             }
 
+            @Override
             public String help_ln() {
                 return "\n";
             }
@@ -831,6 +839,7 @@ public abstract class PlainTestCase {
         _xuseGatheredExecutedSql = true;
         final GatheredExecutedSqlHolder holder = new GatheredExecutedSqlHolder();
         CallbackContext.setSqlResultHandlerOnThread(new SqlResultHandler() {
+            @Override
             public void handle(SqlResultInfo info) {
                 holder.addSqlResultInfo(info);
             }
@@ -856,6 +865,7 @@ public abstract class PlainTestCase {
         _xuseSwitchedCurrentDate = true;
         DBFluteSystem.unlock();
         DBFluteSystem.setCurrentDateProvider(new DfCurrentDateProvider() {
+            @Override
             public long currentTimeMillis() {
                 final LocalDateTime currentDateTime = dateTimeSupplier.get();
                 assertNotNull(currentDateTime);

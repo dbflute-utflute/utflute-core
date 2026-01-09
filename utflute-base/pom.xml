@@ -59,12 +59,6 @@
 		<url>git@github.com:dbflute-utflute/dbflute-core.git</url>
 	</scm>
 
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>9</version>
-	</parent>
-
 	<build>
 		<defaultGoal>validate</defaultGoal>
 		<pluginManagement>
@@ -168,11 +162,9 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!--
-			 'xxx.jar.asc' file can be created by this plug-in
-			 you can deploy by 'mvn -e clean deploy -Dgpg.keyname=xxx -Dgpg.passphrase="xxx"'
-			 -->
-            <plugin>
+  			<!-- 'xxx.jar.asc' file can be created by this plug-in you can deploy
+ 				by 'mvn -e clean deploy -Dgpg.keyname=xxx -Dgpg.passphrase="xxx"' -->
+            <plugin> <!-- needs to create jar deployed to maven central -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <version>1.5</version>
@@ -186,34 +178,17 @@
                     </execution>
                 </executions>
             </plugin>
+			<plugin> <!-- new maven central way since 2025/06 -->
+				<groupId>org.sonatype.central</groupId>
+				<artifactId>central-publishing-maven-plugin</artifactId>
+				<version>0.8.0</version>
+				<extensions>true</extensions>
+				<configuration>
+					<publishingServerId>central</publishingServerId>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>sonatype-oss-public</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>maven.seasar.org</id>
-			<name>The Seasar Foundation Maven2 Repository</name>
-			<url>http://maven.seasar.org/maven2</url>
-		</repository>
-		<repository>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-			<id>snapshot.maven.seasar.org</id>
-			<name>The Seasar Foundation Maven2 Snapshot Repository</name>
-			<url>http://maven.seasar.org/maven2-snapshot</url>
-		</repository>
-	</repositories>
 
 	<dependencyManagement>
 		<dependencies>
@@ -230,19 +205,14 @@
 			<!-- ================ -->
 			<!-- |   provided   | -->
 			<!-- ================ -->
-		    <!-- j2ee -->
+			<!-- transaction -->
 			<dependency>
-				<groupId>org.apache.geronimo.specs</groupId>
-				<artifactId>geronimo-jta_1.1_spec</artifactId>
-				<version>1.0</version>
+				<groupId>javax.transaction</groupId>
+				<artifactId>javax.transaction-api</artifactId>
+				<version>1.2</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.geronimo.specs</groupId>
-				<artifactId>geronimo-ejb_3.0_spec</artifactId>
-				<version>1.0</version>
-			</dependency>
-	
-		    <!-- junit -->
+
+		    <!-- unit test -->
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-api</artifactId>
@@ -266,9 +236,9 @@
 
 			<!-- logging -->
 			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.14</version>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-log4j12</artifactId>
+				<version>1.7.36</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -286,22 +256,14 @@
 		<!-- ================ -->
 		<!-- |   provided   | -->
 		<!-- ================ -->
-	    <!-- j2ee -->
+		<!-- transaction -->
 		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-jta_1.1_spec</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.geronimo.specs</groupId>
-			<artifactId>geronimo-ejb_3.0_spec</artifactId>
+			<groupId>javax.transaction</groupId>
+			<artifactId>javax.transaction-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 
-		<!-- ================ -->
-		<!-- |   provided   | -->
-		<!-- ================ -->
-	    <!-- junit -->
+	    <!-- unit test -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-api</artifactId>
@@ -327,12 +289,6 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,17 +36,19 @@ public class PoliceStoryTest extends PlainTestCase {
     @Test
     public void test_policeStoryOfJavaClassChase_copyright() throws Exception {
         policeStoryOfJavaClassChase(new PoliceStoryJavaClassHandler() {
+            @Override
             public void handle(File srcFile, Class<?> clazz) {
                 markHere("called");
                 final StringBuilder sb = new StringBuilder();
                 readLine(srcFile, "UTF-8", new FileLineHandler() {
+                    @Override
                     public void handle(String line) {
                         sb.append(line).append(ln());
                     }
                 });
                 String text = sb.toString();
                 log(clazz);
-                assertContains(text, "Copyright 2014-2021");
+                assertContains(text, "Copyright 2014-2024");
             }
         });
         assertMarked("called");
@@ -56,6 +58,7 @@ public class PoliceStoryTest extends PlainTestCase {
     public void test_policeStoryOfJspFileChase_notExists() throws Exception {
         try {
             policeStoryOfJspFileChase(new PoliceStoryJspFileHandler() {
+                @Override
                 public void handle(File jspFile) {
                     fail();
                 }

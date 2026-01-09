@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_basic() throws Exception {
         final Set<Integer> callNoList = Collections.synchronizedSet(new HashSet<Integer>());
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 int entryNumber = car.getEntryNumber();
@@ -60,6 +61,7 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_expectedSame() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 car.goal("A");
@@ -71,6 +73,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectedSameBut() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(3)) {
@@ -94,6 +97,7 @@ public class CannonballTest extends PlainTestCase {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final Set<Integer> afterNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 int entryNumber = car.getEntryNumber();
                 log(car);
@@ -113,8 +117,10 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_projectA_basic() throws Exception {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         log("Plan A");
                         callNoList.add(car.getEntryNumber());
@@ -122,6 +128,7 @@ public class CannonballTest extends PlainTestCase {
                     }
                 }, 1);
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         log("Plan B");
                         callNoList.add(car.getEntryNumber());
@@ -137,8 +144,10 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_projectA_normallyDone_expected() throws Exception {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         dragon.expectNormallyDone();
                         log(car);
@@ -159,8 +168,10 @@ public class CannonballTest extends PlainTestCase {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(final CannonballCar car) {
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             dragon.expectNormallyDone();
                             log(car);
@@ -191,8 +202,10 @@ public class CannonballTest extends PlainTestCase {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(final CannonballCar car) {
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             dragon.expectNormallyDone();
                             dragon.releaseIfOvertime(500);
@@ -223,8 +236,10 @@ public class CannonballTest extends PlainTestCase {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         dragon.expectOvertime();
                         log(car);
@@ -251,8 +266,10 @@ public class CannonballTest extends PlainTestCase {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(final CannonballCar car) {
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             dragon.expectOvertime();
                             log(car);
@@ -280,13 +297,16 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_projectA_leaveAlone_comeBack() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         log("Plan A");
                     }
                 }, 1);
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         dragon.releaseIfOvertime(500);
                         dragon.expectOvertime();
@@ -295,6 +315,7 @@ public class CannonballTest extends PlainTestCase {
                     }
                 }, 2);
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         dragon.releaseIfOvertime(500);
                         log("Plan C");
@@ -322,8 +343,10 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_projectA_breakAway_basic() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(final CannonballCar car) {
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             dragon.releaseIfOvertime(2000);
                             dragon.expectOvertime();
@@ -331,6 +354,7 @@ public class CannonballTest extends PlainTestCase {
                         }
                     }, 1);
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             log("Plan B");
                             sleep(100);
@@ -343,11 +367,13 @@ public class CannonballTest extends PlainTestCase {
             log(e.getMessage());
         }
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 if (car.isEntryNumber(1)) {
                     throw new IllegalStateException("breakaway");
                 }
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         log("Plan B");
                         sleep(100);
@@ -357,11 +383,13 @@ public class CannonballTest extends PlainTestCase {
         }, new CannonballOption().threadCount(2).expectExceptionAny(IllegalStateException.class));
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(final CannonballCar car) {
                     if (car.isEntryNumber(1)) {
                         throw new AssertionFailedError("breakaway");
                     }
                     car.projectA(new CannonballProjectA() {
+                        @Override
                         public void plan(CannonballDragon dragon) {
                             log("Plan B");
                             sleep(100);
@@ -378,8 +406,10 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_projectA_breakAway_exception() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(final CannonballCar car) {
                 car.projectA(new CannonballProjectA() {
+                    @Override
                     public void plan(CannonballDragon dragon) {
                         dragon.releaseIfOvertime(500);
                         throw new IllegalStateException("plan");
@@ -395,6 +425,7 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_isEntryNumber_invalid() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 car.isEntryNumber(99999);
@@ -408,6 +439,7 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_expectExceptionAny_type_basic() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 if (car.isEntryNumber(1)) {
@@ -421,6 +453,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectExceptionAny_type_notFound() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                 }
@@ -434,6 +467,7 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_expectExceptionAny_message_basic() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 if (car.isEntryNumber(1)) {
@@ -447,6 +481,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectExceptionAny_message_notFound_normallyDone() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                 }
@@ -461,6 +496,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectExceptionAny_message_notFound_with_unexpected() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(1)) {
@@ -478,6 +514,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectExceptionAny_message_notFound_with_unexpected_more() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(1)) {
@@ -498,6 +535,7 @@ public class CannonballTest extends PlainTestCase {
     @Test
     public void test_cannonball_expectExceptionAny_message_found_with_unexpected_more() throws Exception {
         cannonball(new CannonballRun() {
+            @Override
             public void drive(CannonballCar car) {
                 log(car);
                 if (car.isEntryNumber(1)) {
@@ -515,6 +553,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_expectExceptionAny_message_found_with_assertionFailed() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(1)) {
@@ -536,6 +575,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_noExpect_butExcetpion_basic() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(1)) {
@@ -553,6 +593,7 @@ public class CannonballTest extends PlainTestCase {
     public void test_cannonball_noExpect_butExcetpion_more() throws Exception {
         try {
             cannonball(new CannonballRun() {
+                @Override
                 public void drive(CannonballCar car) {
                     log(car);
                     if (car.isEntryNumber(1)) {

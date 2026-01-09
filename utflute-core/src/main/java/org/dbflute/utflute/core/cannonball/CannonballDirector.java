@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2021 the original author or authors.
+ * Copyright 2014-2024 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,8 +104,7 @@ public class CannonballDirector {
         final List<Future<Object>> futureList = new ArrayList<Future<Object>>();
         for (int i = 0; i < threadCount; i++) { // basically synchronized with parameter size
             final int entryNumber = i + 1;
-            final Callable<Object> callable = createCallable(execution, option, ready, start, goal, ourLatch,
-                    entryNumber, lockObj, logger);
+            final Callable<Object> callable = createCallable(execution, option, ready, start, goal, ourLatch, entryNumber, lockObj, logger);
             final Future<Object> future = service.submit(callable);
             futureList.add(future);
         }
@@ -132,6 +131,7 @@ public class CannonballDirector {
 
     protected CannonballLogger createLogger() {
         return new CannonballLogger() {
+            @Override
             public void log(Object... msgs) {
                 CannonballDirector.this.log(msgs);
             }
@@ -183,10 +183,11 @@ public class CannonballDirector {
     // ===================================================================================
     //                                                                            Callable
     //                                                                            ========
-    protected Callable<Object> createCallable(final CannonballRun run, final CannonballOption option,
-            final CountDownLatch ready, final CountDownLatch start, final CountDownLatch goal,
-            final CannonballLatch ourLatch, final int entryNumber, final Object lockObj, final CannonballLogger logger) {
+    protected Callable<Object> createCallable(final CannonballRun run, final CannonballOption option, final CountDownLatch ready,
+            final CountDownLatch start, final CountDownLatch goal, final CannonballLatch ourLatch, final int entryNumber,
+            final Object lockObj, final CannonballLogger logger) {
         return new Callable<Object>() {
+            @Override
             public Object call() { // each thread here
                 final long threadId = Thread.currentThread().getId();
                 final CannonballCar car = createCar(threadId, ourLatch, entryNumber, lockObj, option, logger);
@@ -244,8 +245,8 @@ public class CannonballDirector {
         };
     }
 
-    protected CannonballCar createCar(long threadId, CannonballLatch ourLatch, int entryNumber, Object lockObj,
-            CannonballOption option, CannonballLogger logger) {
+    protected CannonballCar createCar(long threadId, CannonballLatch ourLatch, int entryNumber, Object lockObj, CannonballOption option,
+            CannonballLogger logger) {
         final int countOfEntry = option.getThreadCount();
         return new CannonballCar(threadId, ourLatch, entryNumber, lockObj, countOfEntry, logger);
     }
