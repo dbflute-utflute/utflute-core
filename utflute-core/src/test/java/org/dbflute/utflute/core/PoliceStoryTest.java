@@ -20,6 +20,7 @@ import java.io.File;
 import org.dbflute.utflute.core.filesystem.FileLineHandler;
 import org.dbflute.utflute.core.policestory.javaclass.PoliceStoryJavaClassHandler;
 import org.dbflute.utflute.core.policestory.jspfile.PoliceStoryJspFileHandler;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author jflute
@@ -30,6 +31,7 @@ public class PoliceStoryTest extends PlainTestCase {
     // ===================================================================================
     //                                                                               Basic
     //                                                                               =====
+    @Test
     public void test_policeStoryOfJavaClassChase_copyright() throws Exception {
         policeStoryOfJavaClassChase(new PoliceStoryJavaClassHandler() {
             public void handle(File srcFile, Class<?> clazz) {
@@ -48,6 +50,7 @@ public class PoliceStoryTest extends PlainTestCase {
         assertMarked("called");
     }
 
+    @Test
     public void test_policeStoryOfJspFileChase_notExists() throws Exception {
         try {
             policeStoryOfJspFileChase(new PoliceStoryJspFileHandler() {

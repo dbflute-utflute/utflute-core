@@ -71,16 +71,18 @@ import org.dbflute.util.DfCollectionUtil;
 import org.dbflute.util.DfResourceUtil;
 import org.dbflute.util.DfTypeUtil;
 import org.dbflute.util.Srl;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.TestInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import junit.framework.TestCase;
 
 /**
  * @author jflute
  * @since 0.1.0 (2011/07/24 Sunday)
  */
-public abstract class PlainTestCase extends TestCase {
+public abstract class PlainTestCase {
 
     // ===================================================================================
     //                                                                          Definition
@@ -95,6 +97,9 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                           Attribute
     //                                                                           =========
+    /** The method name of test. (NullAllowed: before preparation) */
+    private String _xtestMethodName;
+
     /** The manager of mark here. (NullAllowed: lazy-loaded) */
     private MarkHereManager _xmarkHereManager;
 
@@ -110,13 +115,17 @@ public abstract class PlainTestCase extends TestCase {
     // ===================================================================================
     //                                                                            Settings
     //                                                                            ========
-    @Override
-    protected void setUp() throws Exception {
+    @BeforeEach
+    protected void setUp(TestInfo testInfo) throws Exception {
+        xkeepTestMethodName(testInfo);
         xreserveShowTitle();
         if (!xisSuppressTestCaseAccessContext()) {
             initializeTestCaseAccessContext();
         }
-        super.setUp();
+    }
+
+    protected void xkeepTestMethodName(TestInfo testInfo) {
+        _xtestMethodName = testInfo.getTestMethod().map(md -> md.getName()).orElse("unknown");
     }
 
     protected void xreserveShowTitle() {
@@ -125,37 +134,22 @@ public abstract class PlainTestCase extends TestCase {
     }
 
     protected String xgetCaseDisp() {
-        return getClass().getSimpleName() + "." + getName() + "()";
+        return getClass().getSimpleName() + "." + getTestMethodName() + "()";
     }
 
-    @Override
-    protected void runTest() throws Throwable {
-        try {
-            super.runTest();
-            postTest();
-        } catch (Throwable e) { // to record in application log
-            log("Failed to finish the test: " + xgetCaseDisp(), e);
-            throw e;
-        }
-    }
-
-    protected void postTest() {
-    }
-
-    @Override
+    @AfterEach
     protected void tearDown() throws Exception {
         xclearAccessContextOnThread();
         xclearGatheredExecutedSql();
         xclearSwitchedCurrentDate();
         xclearMark(); // last process to be able to be used in tearDown()
-        super.tearDown();
     }
 
     // -----------------------------------------------------
     //                                            Basic Info
     //                                            ----------
     protected Method getTestMethod() {
-        String methodName = getName();
+        String methodName = getTestMethodName();
         try {
             return getClass().getMethod(methodName, (Class[]) null);
         } catch (NoSuchMethodException | SecurityException e) {
@@ -163,22 +157,13 @@ public abstract class PlainTestCase extends TestCase {
         }
     }
 
+    protected String getTestMethodName() {
+        return _xtestMethodName;
+    }
+
     // ===================================================================================
     //                                                                       Assert Helper
     //                                                                       =============
-    // -----------------------------------------------------
-    //                                                Equals
-    //                                                ------
-    // to avoid setting like this:
-    //  assertEquals(Integer.valueOf(3), member.getMemberId())
-    protected void assertEquals(String message, int expected, Integer actual) {
-        assertEquals(message, Integer.valueOf(expected), actual);
-    }
-
-    protected void assertEquals(int expected, Integer actual) {
-        assertEquals(null, Integer.valueOf(expected), actual);
-    }
-
     // -----------------------------------------------------
     //                                            True/False
     //                                            ----------
@@ -1422,5 +1407,89 @@ public abstract class PlainTestCase extends TestCase {
 
     public boolean xisUseSwitchedCurrentDate() {
         return _xuseSwitchedCurrentDate;
+    }
+
+    // ===================================================================================
+    //                                                                    Assertion Helper
+    //                                                                    ================
+    // wrapper methods for JUnit 5 Assertions (to maintain compatibility with existing code)
+    // _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+    // #for_now jflute no-message method only to be simple and avoid overload complex (2026/01/11)
+    //  JUnit4: front message style
+    //  JUnit5: rear message style
+    // so UTFlute for JUnit5 provides simple assert methods only here
+    // application can add favorite message style methods in its Unit[App]TestCase.java 
+    // _/_/_/_/_/_/_/_/
+    // -----------------------------------------------------
+    //                                                Equals
+    //                                                ------
+    protected void assertEquals(Object expected, Object actual) {
+        if (isAssertionEqualsNumberInsensitive() && expected instanceof Number && actual instanceof Number) {
+            // Handle numeric type comparisons (Integer vs Long, etc.) for JUnit 5 migration
+            xnumberInsensitiveAssertEquals((Number) expected, (Number) actual);
+        } else {
+            Assertions.assertEquals(expected, actual);
+        }
+    }
+
+    protected boolean isAssertionEqualsNumberInsensitive() { // you can override
+        return false; // as default
+    }
+
+    protected void xnumberInsensitiveAssertEquals(Number expected, Number actual) {
+        if (expected instanceof Double || expected instanceof Float //
+                || actual instanceof Double || actual instanceof Float) { // as decimal
+            Assertions.assertEquals(expected.doubleValue(), actual.doubleValue());
+        } else { // as intger (seisuu in Japanese)
+            Assertions.assertEquals(expected.longValue(), actual.longValue());
+        }
+    }
+
+    // -----------------------------------------------------
+    //                                            true/false
+    //                                            ----------
+    protected void assertTrue(boolean condition) {
+        Assertions.assertTrue(condition);
+    }
+
+    protected void assertFalse(boolean condition) {
+        Assertions.assertFalse(condition);
+    }
+
+    // -----------------------------------------------------
+    //                                               NotNull
+    //                                               -------
+    protected void assertNotNull(Object actual) {
+        Assertions.assertNotNull(actual);
+    }
+
+    protected void assertNull(Object actual) {
+        Assertions.assertNull(actual);
+    }
+
+    // -----------------------------------------------------
+    //                                        Simple Failure
+    //                                        --------------
+    protected void fail() {
+        Assertions.fail();
+    }
+
+    // ===================================================================================
+    //                                                                 Internal Compatible
+    //                                                                 ===================
+    // to keep clear differences with JUnit4 UTFlute so bottom definition
+    // -----------------------------------------------------
+    //                                     Assert Compatible
+    //                                     -----------------
+    private void assertTrue(String message, boolean condition) {
+        Assertions.assertTrue(condition, message);
+    }
+
+    private void assertFalse(String message, boolean condition) {
+        Assertions.assertFalse(condition, message);
+    }
+
+    private void fail(String message) {
+        Assertions.fail(message);
     }
 }

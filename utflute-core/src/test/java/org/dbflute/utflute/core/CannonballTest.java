@@ -30,8 +30,8 @@ import org.dbflute.utflute.core.cannonball.CannonballOption;
 import org.dbflute.utflute.core.cannonball.CannonballProjectA;
 import org.dbflute.utflute.core.cannonball.CannonballRetireException;
 import org.dbflute.utflute.core.cannonball.CannonballRun;
-
-import junit.framework.AssertionFailedError;
+import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author jflute
@@ -41,6 +41,7 @@ public class CannonballTest extends PlainTestCase {
     // ===================================================================================
     //                                                                               Basic
     //                                                                               =====
+    @Test
     public void test_cannonball_basic() throws Exception {
         final Set<Integer> callNoList = Collections.synchronizedSet(new HashSet<Integer>());
         cannonball(new CannonballRun() {
@@ -54,6 +55,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(10, callNoList.size());
     }
 
+    @Test
     public void test_cannonball_expectedSame() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(CannonballCar car) {
@@ -63,6 +65,7 @@ public class CannonballTest extends PlainTestCase {
         }, new CannonballOption().expectSameResult());
     }
 
+    @Test
     public void test_cannonball_expectedSameBut() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -84,6 +87,7 @@ public class CannonballTest extends PlainTestCase {
     // ===================================================================================
     //                                                                             Restart
     //                                                                             =======
+    @Test
     public void test_cannonball_restart_basic() throws Exception {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final Set<Integer> afterNoSet = Collections.synchronizedSet(new HashSet<Integer>());
@@ -103,6 +107,7 @@ public class CannonballTest extends PlainTestCase {
     // ===================================================================================
     //                                                                           Project A
     //                                                                           =========
+    @Test
     public void test_cannonball_projectA_basic() throws Exception {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         cannonball(new CannonballRun() {
@@ -126,6 +131,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1, 2), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_normallyDone_expected() throws Exception {
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
         cannonball(new CannonballRun() {
@@ -145,6 +151,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_normallyDone_expectedBut_basic() throws Exception {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
@@ -176,6 +183,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_normallyDone_expectedBut_speedy() throws Exception {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
@@ -208,6 +216,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_overtime_basic() throws Exception {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
@@ -234,6 +243,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_overtime_expectedBut() throws Exception {
         final Set<Integer> beforeNoSet = Collections.synchronizedSet(new HashSet<Integer>());
         final List<Integer> callNoList = Collections.synchronizedList(new ArrayList<Integer>());
@@ -265,6 +275,7 @@ public class CannonballTest extends PlainTestCase {
         assertEquals(Arrays.asList(1), callNoList);
     }
 
+    @Test
     public void test_cannonball_projectA_leaveAlone_comeBack() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(final CannonballCar car) {
@@ -305,6 +316,7 @@ public class CannonballTest extends PlainTestCase {
     // -----------------------------------------------------
     //                                            Break Away
     //                                            ----------
+    @Test
     public void test_cannonball_projectA_breakAway_basic() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -361,6 +373,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_projectA_breakAway_exception() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(final CannonballCar car) {
@@ -377,6 +390,7 @@ public class CannonballTest extends PlainTestCase {
     // ===================================================================================
     //                                                                        Entry Number
     //                                                                        ============
+    @Test
     public void test_cannonball_isEntryNumber_invalid() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(CannonballCar car) {
@@ -389,6 +403,7 @@ public class CannonballTest extends PlainTestCase {
     // ===================================================================================
     //                                                                  Expected Exception
     //                                                                  ==================
+    @Test
     public void test_cannonball_expectExceptionAny_type_basic() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(CannonballCar car) {
@@ -400,6 +415,7 @@ public class CannonballTest extends PlainTestCase {
         }, new CannonballOption().threadCount(2).expectExceptionAny(IllegalStateException.class));
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_type_notFound() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -413,6 +429,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_basic() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(CannonballCar car) {
@@ -424,6 +441,7 @@ public class CannonballTest extends PlainTestCase {
         }, new CannonballOption().threadCount(2).expectExceptionAny("oo"));
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_notFound_normallyDone() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -437,6 +455,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_notFound_with_unexpected() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -453,6 +472,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_notFound_with_unexpected_more() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -473,6 +493,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_found_with_unexpected_more() throws Exception {
         cannonball(new CannonballRun() {
             public void drive(CannonballCar car) {
@@ -488,6 +509,7 @@ public class CannonballTest extends PlainTestCase {
         }, new CannonballOption().threadCount(5).expectExceptionAny("foo"));
     }
 
+    @Test
     public void test_cannonball_expectExceptionAny_message_found_with_assertionFailed() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -508,6 +530,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_noExpect_butExcetpion_basic() throws Exception {
         try {
             cannonball(new CannonballRun() {
@@ -524,6 +547,7 @@ public class CannonballTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_cannonball_noExpect_butExcetpion_more() throws Exception {
         try {
             cannonball(new CannonballRun() {

@@ -24,11 +24,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import junit.framework.AssertionFailedError;
-
 import org.dbflute.helper.message.ExceptionMessageBuilder;
 import org.dbflute.utflute.core.transaction.TransactionResource;
 import org.dbflute.util.Srl;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author jflute

@@ -17,7 +17,9 @@ package org.dbflute.utflute.core;
 
 import java.time.LocalDateTime;
 
-import junit.framework.AssertionFailedError;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * @author jflute
@@ -27,16 +29,15 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                            Settings
     //                                                                            ========
+    @AfterEach // Don't forget !
     @Override
     protected void tearDown() throws Exception {
-        if (getName().startsWith("test_markHere_nonAsserted")) {
-            try {
-                super.tearDown();
-            } catch (AssertionFailedError e) {
-                log(e.getMessage());
-            }
-        } else {
+        try {
             super.tearDown();
+        } catch (AssertionFailedError e) { // always about markHere()
+            String msg = e.getMessage();
+            log(msg);
+            assertContains(msg, "Found the non-asserted mark.");
         }
     }
 
@@ -46,6 +47,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // -----------------------------------------------------
     //                                              Contains
     //                                              --------
+    @Test
     public void test_assertContains() throws Exception {
         assertContains("foo", "fo");
         try {
@@ -72,6 +74,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_assertContainsAll() throws Exception {
         assertContainsAll("foo", "fo", "oo");
         try {
@@ -82,6 +85,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         }
     }
 
+    @Test
     public void test_assertContainsKeyword() throws Exception {
         assertContainsKeyword(newArrayList("foo", "bar", "qux"), "ar");
         try {
@@ -110,6 +114,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // -----------------------------------------------------
     //                                                  Has
     //                                                 -----
+    @Test
     public void test_assertHas() throws Exception {
         assertHasAnyElement(newArrayList("foo"));
         assertHasAnyElement(newArrayList("foo", "bar"));
@@ -163,6 +168,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // -----------------------------------------------------
     //                                             Exception
     //                                             ---------
+    @Test
     public void test_exception_basic() throws Exception {
         String str = null;
         assertException(NullPointerException.class, () -> str.toString());
@@ -179,6 +185,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                           Mark Here
     //                                                                           =========
+    @Test
     public void test_markHere_basic() throws Exception {
         markHere("foo");
         assertMarked("foo");
@@ -192,6 +199,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         assertMarked("qux");
     }
 
+    @Test
     public void test_markHere_phase() throws Exception {
         markHere("foo");
         markHere("bar");
@@ -214,10 +222,12 @@ public class PlainTestCaseTest extends PlainTestCase {
         assertMarked("bar");
     }
 
+    @Test
     public void test_markHere_nonAsserted_basic() throws Exception {
         markHere("foo");
     }
 
+    @Test
     public void test_markHere_nonAsserted_contains_assert() throws Exception {
         markHere("foo");
         markHere("foo");
@@ -226,6 +236,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         markHere("qux");
     }
 
+    @Test
     public void test_markHere_nonAsserted_many_mark() throws Exception {
         markHere("foo");
         markHere("foo");
@@ -236,6 +247,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                      Logging Helper
     //                                                                      ==============
+    @Test
     public void test_log_basic() throws Exception {
         // check your eyes
         log("foo");
@@ -245,6 +257,7 @@ public class PlainTestCaseTest extends PlainTestCase {
         log("foo", currentUtilDate(), currentTimestamp());
     }
 
+    @Test
     public void test_log_placeholder() throws Exception {
         // check your eyes
         log("sea: {}, land: {}"); // sea: {}, land: {}
@@ -270,6 +283,7 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                             DBFlute
     //                                                                             =======
+    @Test
     public void test_switchCurrentDate() {
         switchCurrentDate(() -> LocalDateTime.of(2016, 10, 27, 3, 0));
         log(currentLocalDate(), currentLocalDateTime(), currentUtilDate(), currentTimestamp());
