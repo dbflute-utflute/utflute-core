@@ -249,6 +249,12 @@
 			<artifactId>dbflute-runtime</artifactId>
 		</dependency>
 
+	    <!-- unit test -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+		</dependency>
+
 		<!-- ================ -->
 		<!-- |   provided   | -->
 		<!-- ================ -->
@@ -264,12 +270,6 @@
 			<groupId>jakarta.transaction</groupId>
 			<artifactId>jakarta.transaction-api</artifactId>
 			<scope>provided</scope>
-		</dependency>
-
-	    <!-- unit test -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
 		</dependency>
 
 		<!-- ================ -->
