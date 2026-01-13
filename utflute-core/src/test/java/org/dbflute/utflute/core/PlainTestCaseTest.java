@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.opentest4j.AssertionFailedError;
 
 /**
@@ -31,9 +32,9 @@ public class PlainTestCaseTest extends PlainTestCase {
     //                                                                            ========
     @AfterEach // Don't forget !
     @Override
-    protected void tearDown() throws Exception {
+    protected void tearDown(TestInfo testInfo) throws Exception {
         try {
-            super.tearDown();
+            super.tearDown(testInfo);
         } catch (AssertionFailedError e) { // always about markHere()
             String msg = e.getMessage();
             log(msg);
