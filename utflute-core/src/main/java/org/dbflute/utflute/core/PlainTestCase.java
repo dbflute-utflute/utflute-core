@@ -1437,10 +1437,22 @@ public abstract class PlainTestCase {
     }
 
     protected void xnumberInsensitiveAssertEquals(Number expected, Number actual) {
+        // _/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+        // #for_now jflute assertEquals(), Float headache (2026/01/14)
+        // e.g.
+        //  Float floatValue = Float.valueOf(1.2F);
+        //  Double doubleValue = Double.valueOf(1.2);
+        //
+        //  assertEquals(Float.valueOf(1.200F), floatValue); // both float, no problem
+        //  assertEquals(Double.valueOf(1.200), doubleValue); // both double, no problem
+        //
+        //  log(floatValue, doubleValue); // 1.2, 1.2
+        //  assertEquals(floatValue, doubleValue); // expected: <1.2000000476837158> but was: <1.2>
+        // _/_/_/_/_/_/_/_/
         if (expected instanceof Double || expected instanceof Float //
                 || actual instanceof Double || actual instanceof Float) { // as decimal
             Assertions.assertEquals(expected.doubleValue(), actual.doubleValue());
-        } else { // as intger (seisuu in Japanese)
+        } else { // as integer (seisuu in Japanese)
             Assertions.assertEquals(expected.longValue(), actual.longValue());
         }
     }
