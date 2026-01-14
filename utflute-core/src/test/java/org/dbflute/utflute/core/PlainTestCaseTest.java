@@ -17,7 +17,6 @@ package org.dbflute.utflute.core;
 
 import java.time.LocalDateTime;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
 import org.opentest4j.AssertionFailedError;
@@ -30,7 +29,6 @@ public class PlainTestCaseTest extends PlainTestCase {
     // ===================================================================================
     //                                                                            Settings
     //                                                                            ========
-    @AfterEach // Don't forget !
     @Override
     protected void tearDown(TestInfo testInfo) throws Exception {
         try {
