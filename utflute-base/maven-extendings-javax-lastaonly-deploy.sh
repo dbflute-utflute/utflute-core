@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# Base
-mvn -e clean deploy -Dgpg.keyname=$1
-
 # Core
 cd ../utflute-core
 . maven-deploy.sh $1
