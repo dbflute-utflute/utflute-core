@@ -1,16 +1,12 @@
 #!/bin/bash
 
-# Base
-mvn -e clean deploy -Dgpg.keyname=$1
-
 # Core
 cd ../utflute-core
 . maven-deploy.sh $1
 
-# not related to JUnit5
 # Mocklet
-#cd ../../utflute-mocklet/utflute-mocklet
-#. maven-deploy.sh $1
+cd ../../utflute-mocklet/utflute-mocklet
+. maven-deploy.sh $1
 
 # LastaFlute
 cd ../../utflute-lasta/utflute-lasta-di
